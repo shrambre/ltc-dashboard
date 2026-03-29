@@ -989,9 +989,9 @@ async function loadUserRole() {
   const { data } = await _sb.from('users').select('*').eq('email', currentUser.email).single();
   if (data) {
     currentUserRole = data.role;
-    document.getElementById('user-pill').textContent = '👤 ' + data.name;
+    const up=document.getElementById('user-pill'); if(up) up.textContent='👤 '+data.name;
     const h = new Date().getHours();
-    document.getElementById('dash-greeting').textContent = 'Good ' + (h<12?'Morning':h<17?'Afternoon':'Evening') + ', ' + data.name + '! 👋';
+    const dg=document.getElementById('dash-greeting'); if(dg) dg.textContent = 'Good ' + (h<12?'Morning':h<17?'Afternoon':'Evening') + ', ' + data.name + '! 👋';
     if (data.role === 'admin') {
       document.getElementById('admin-section').style.display = 'block';
       document.getElementById('sn-roadmap').style.display = 'flex';
