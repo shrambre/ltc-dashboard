@@ -1015,7 +1015,7 @@ function showApp() {
   loadDashboardCounts(); loadCustomers(); loadContacts(); loadPipeline(); loadIntel(); loadNotes();
 }
 
-supabase.auth.getSession().then(({ data: { session } }) => {
+_sb.auth.getSession().then(({ data: { session } }) => {
   if (session) { currentUser = session.user; loadUserRole().then(() => showApp()); }
 });
 
