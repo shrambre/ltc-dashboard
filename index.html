@@ -970,7 +970,7 @@ Call us: 1 844 417-3030
 </div>
 
 <script>
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null, currentUserRole = null;
 
 async function doLogin() {
@@ -978,7 +978,7 @@ async function doLogin() {
   const password = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
   errEl.style.display = 'none';
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await _sb.auth.signInWithPassword({ email, password });
   if (error) { errEl.style.display = 'block'; return; }
   currentUser = data.user;
   await loadUserRole();
@@ -986,7 +986,7 @@ async function doLogin() {
 }
 
 async function loadUserRole() {
-  const { data } = await supabase.from('users').select('*').eq('email', currentUser.email).single();
+  const { data } = await _sb.from('users').select('*').eq('email', currentUser.email).single();
   if (data) {
     currentUserRole = data.role;
     document.getElementById('user-pill').textContent = '👤 ' + data.name;
@@ -1000,7 +1000,7 @@ async function loadUserRole() {
 }
 
 async function doLogout() {
-  await supabase.auth.signOut();
+  await _sb.auth.signOut();
   document.getElementById('main-app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('bottom-nav').style.display = 'none';
@@ -1040,10 +1040,10 @@ function closeModal(){ document.getElementById('moverlay').classList.remove('on'
 
 async function loadDashboardCounts() {
   const [c1,c2,c3,c4] = await Promise.all([
-    supabase.from('customers').select('*',{count:'exact',head:true}),
-    supabase.from('pipeline').select('*',{count:'exact',head:true}),
-    supabase.from('intel').select('*',{count:'exact',head:true}),
-    supabase.from('contacts').select('*',{count:'exact',head:true})
+    _sb.from('customers').select('*',{count:'exact',head:true}),
+    _sb.from('pipeline').select('*',{count:'exact',head:true}),
+    _sb.from('intel').select('*',{count:'exact',head:true}),
+    _sb.from('contacts').select('*',{count:'exact',head:true})
   ]);
   document.getElementById('dash-cust-cnt').textContent = c1.count||0;
   document.getElementById('dash-pipe-cnt').textContent = c2.count||0;
@@ -1053,7 +1053,7 @@ async function loadDashboardCounts() {
 
 let allCustomers=[];
 async function loadCustomers(){
-  const {data}=await supabase.from('customers').select('*').order('created_at',{ascending:false});
+  const {data}=await _sb.from('customers').select('*').order('created_at',{ascending:false});
   allCustomers=data||[]; renderCustomers(allCustomers);
 }
 function renderCustomers(customers){
@@ -1073,19 +1073,19 @@ function viewCustomer(id){
 }
 async function deleteCustomer(id){
   if(!confirm('Delete this customer?')) return;
-  await supabase.from('customers').delete().eq('id',id);
+  await _sb.from('customers').delete().eq('id',id);
   toast('Customer deleted'); closeModal(); loadCustomers(); loadDashboardCounts();
 }
 async function saveCustomer(){
   const name=document.getElementById('c-name').value.trim();
   if(!name){toast('Company name required','var(--err)');return;}
-  await supabase.from('customers').insert({name,industry:document.getElementById('c-industry').value,street:document.getElementById('c-street').value,city:document.getElementById('c-city').value,state:document.getElementById('c-state').value,zip:document.getElementById('c-zip').value,product_line:document.getElementById('c-line').value,status:document.getElementById('c-status').value,notes:document.getElementById('c-notes').value});
+  await _sb.from('customers').insert({name,industry:document.getElementById('c-industry').value,street:document.getElementById('c-street').value,city:document.getElementById('c-city').value,state:document.getElementById('c-state').value,zip:document.getElementById('c-zip').value,product_line:document.getElementById('c-line').value,status:document.getElementById('c-status').value,notes:document.getElementById('c-notes').value});
   toast('Customer added! ✅'); closeModal(); loadCustomers(); loadDashboardCounts();
 }
 
 let allContacts=[];
 async function loadContacts(){
-  const {data}=await supabase.from('contacts').select('*').order('created_at',{ascending:false});
+  const {data}=await _sb.from('contacts').select('*').order('created_at',{ascending:false});
   allContacts=data||[]; renderContacts(allContacts);
 }
 function renderContacts(contacts){
@@ -1095,20 +1095,20 @@ function renderContacts(contacts){
 }
 async function deleteContact(id){
   if(!confirm('Delete this contact?')) return;
-  await supabase.from('contacts').delete().eq('id',id);
+  await _sb.from('contacts').delete().eq('id',id);
   toast('Contact deleted'); loadContacts(); loadDashboardCounts();
 }
 async function saveContact(){
   const first=document.getElementById('ct-first').value.trim();
   const last=document.getElementById('ct-last').value.trim();
   if(!first||!last){toast('Name required','var(--err)');return;}
-  await supabase.from('contacts').insert({first_name:first,last_name:last,title:document.getElementById('ct-title').value,phone:document.getElementById('ct-phone').value,email:document.getElementById('ct-email').value,street:document.getElementById('ct-street').value,city:document.getElementById('ct-city').value,state:document.getElementById('ct-state').value,zip:document.getElementById('ct-zip').value,notes:document.getElementById('ct-notes').value});
+  await _sb.from('contacts').insert({first_name:first,last_name:last,title:document.getElementById('ct-title').value,phone:document.getElementById('ct-phone').value,email:document.getElementById('ct-email').value,street:document.getElementById('ct-street').value,city:document.getElementById('ct-city').value,state:document.getElementById('ct-state').value,zip:document.getElementById('ct-zip').value,notes:document.getElementById('ct-notes').value});
   toast('Contact added! ✅'); closeModal(); loadContacts(); loadDashboardCounts();
 }
 
 let allPipeline=[];
 async function loadPipeline(){
-  const {data}=await supabase.from('pipeline').select('*').order('created_at',{ascending:false});
+  const {data}=await _sb.from('pipeline').select('*').order('created_at',{ascending:false});
   allPipeline=data||[]; renderPipeline(allPipeline);
 }
 function renderPipeline(opps){
@@ -1119,17 +1119,17 @@ function renderPipeline(opps){
 }
 async function deletePipeline(id){
   if(!confirm('Delete?')) return;
-  await supabase.from('pipeline').delete().eq('id',id);
+  await _sb.from('pipeline').delete().eq('id',id);
   toast('Deleted'); loadPipeline(); loadDashboardCounts();
 }
 async function saveOpportunity(){
-  await supabase.from('pipeline').insert({product_line:document.getElementById('op-line').value,value:document.getElementById('op-value').value||null,stage:document.getElementById('op-stage').value,notes:document.getElementById('op-notes').value});
+  await _sb.from('pipeline').insert({product_line:document.getElementById('op-line').value,value:document.getElementById('op-value').value||null,stage:document.getElementById('op-stage').value,notes:document.getElementById('op-notes').value});
   toast('Opportunity added! ✅'); closeModal(); loadPipeline(); loadDashboardCounts();
 }
 
 let INTEL=[];
 async function loadIntel(){
-  const {data}=await supabase.from('intel').select('*').order('created_at',{ascending:false});
+  const {data}=await _sb.from('intel').select('*').order('created_at',{ascending:false});
   INTEL=data||[]; renderIntel();
 }
 function renderIntel(){
@@ -1157,13 +1157,13 @@ async function addIntel(){
   const aiResult=await analyzeIntel(entry);
   entry.priority=aiResult.priority||'warm';
   entry.ai_suggestion={act:aiResult.action||'Follow up with '+co,why:aiResult.reason||'Review for LTC fit.',tags:aiResult.tags||['Needs Review']};
-  await supabase.from('intel').insert(entry);
+  await _sb.from('intel').insert(entry);
   clearIntelForm();
   toast('✅ Saved! '+entry.priority.toUpperCase(),'var(--hot)');
   loadIntel(); loadDashboardCounts();
 }
-async function deleteIntel(id){await supabase.from('intel').delete().eq('id',id);toast('Removed');loadIntel();loadDashboardCounts();}
-async function clearAllIntel(){if(!confirm('Clear all intel?'))return;await supabase.from('intel').delete().neq('id','00000000-0000-0000-0000-000000000000');toast('Cleared');loadIntel();loadDashboardCounts();}
+async function deleteIntel(id){await _sb.from('intel').delete().eq('id',id);toast('Removed');loadIntel();loadDashboardCounts();}
+async function clearAllIntel(){if(!confirm('Clear all intel?'))return;await _sb.from('intel').delete().neq('id','00000000-0000-0000-0000-000000000000');toast('Cleared');loadIntel();loadDashboardCounts();}
 function clearIntelForm(){['i-co','i-note','i-val'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const s=document.getElementById('i-st');if(s)s.value='';}
 async function regenSugg(){toast('Re-analyzing...','var(--hot)');await loadIntel();toast('Updated!','var(--ok)');}
 async function analyzeIntel(entry){
