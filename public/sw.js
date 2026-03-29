@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ltc-dashboard-v1';
+const CACHE_NAME = 'ltc-dashboard-v2';
 const STATIC_ASSETS = ['/', '/manifest.json', '/velocity-logo.png'];
 
 self.addEventListener('install', (event) => {
