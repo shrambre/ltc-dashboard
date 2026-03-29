@@ -1,28 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-title" content="LTC Dashboard">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="theme-color" content="#0f172a">
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Velocity">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Velocity | LTC Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --blue:#0a3d6b; --blue2:#2d7dd2; --accent:#00aaff; --gold:#f0a500;
-  --hot:#ff4d4d; --warm:#ff8c00;
-  --bg:#060e1a; --panel:#0d1f35; --card:#0f2742; --card2:#122e4a;
-  --t1:#e8f0fe; --t2:#7da5c8; --dim:#4a7090;
-  --border:rgba(45,125,210,0.2); --borderb:rgba(0,170,255,0.35);
-  --ok:#22c55e; --err:#ef4444; --r:10px;
+  --blue:#0a3d6b;--blue2:#2d7dd2;--accent:#00aaff;--gold:#f0a500;
+  --hot:#ff4d4d;--warm:#ff8c00;
+  --bg:#060e1a;--panel:#0d1f35;--card:#0f2742;--card2:#122e4a;
+  --t1:#e8f0fe;--t2:#7da5c8;--dim:#4a7090;
+  --border:rgba(45,125,210,0.2);--borderb:rgba(0,170,255,0.35);
+  --ok:#22c55e;--err:#ef4444;--r:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden;}
-
-/* TOPBAR */
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:linear-gradient(135deg,#060e1a 0%,#0a2a4a 100%);}
+.login-logo{width:180px;margin-bottom:32px;}
+.login-card{background:var(--panel);border:1px solid var(--borderb);border-radius:16px;padding:32px;width:100%;max-width:400px;}
+.login-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;text-align:center;margin-bottom:6px;}
+.login-sub{font-size:13px;color:var(--t2);text-align:center;margin-bottom:24px;}
+.login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.login-field label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);}
+.login-field input{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--t1);padding:12px 14px;font-size:15px;font-family:'Barlow',sans-serif;outline:none;width:100%;}
+.login-field input:focus{border-color:var(--accent);}
+.login-btn{width:100%;padding:14px;border-radius:8px;background:var(--blue2);color:white;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;margin-top:8px;}
+.login-btn:hover{background:var(--accent);}
+.login-error{color:var(--err);font-size:13px;text-align:center;margin-top:10px;display:none;}
 .topbar{background:linear-gradient(90deg,var(--blue),#0a2a4a);border-bottom:2px solid var(--blue2);display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.5);}
 .topbar-left{display:flex;align-items:center;gap:10px;}
 .logo{background:var(--accent);color:var(--blue);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;padding:3px 9px;border-radius:4px;letter-spacing:1px;}
@@ -32,8 +46,8 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--t1);min-he
 .hot-pill{background:rgba(255,77,77,.12);border:1px solid rgba(255,77,77,.35);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--hot);font-weight:700;display:flex;align-items:center;gap:5px;cursor:pointer;}
 .hot-dot{width:6px;height:6px;border-radius:50%;background:var(--hot);animation:pdot 1.5s infinite;}
 @keyframes pdot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
-
-/* LAYOUT */
+.logout-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--dim);cursor:pointer;font-family:'Barlow',sans-serif;}
+.logout-btn:hover{color:var(--err);border-color:var(--err);}
 .app{display:flex;min-height:calc(100vh - 56px);}
 .sidebar{width:210px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);padding:12px 0;overflow-y:auto;}
 .snav a{display:flex;align-items:center;gap:9px;padding:9px 16px;color:var(--t2);text-decoration:none;font-size:13px;border-left:3px solid transparent;transition:all .15s;font-weight:500;}
@@ -45,14 +59,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--t1);min-he
 .slabel{padding:13px 16px 4px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}
 .snav svg{width:15px;height:15px;flex-shrink:0;}
 .main{flex:1;overflow-y:auto;padding:18px;}
-
-/* VIEWS */
 .view{display:none;}.view.on{display:block;}
 .ph{margin-bottom:16px;}
 .pt{font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:700;letter-spacing:.5px;}
 .ps{font-size:13px;color:var(--t2);margin-top:3px;}
-
-/* STATS */
 .sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:10px;margin-bottom:16px;}
 .sc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px;position:relative;overflow:hidden;}
 .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
@@ -61,41 +71,25 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--t1);min-he
 .sv{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;line-height:1.1;margin:4px 0 2px;}
 .sc.b .sv{color:var(--blue2)}.sc.c .sv{color:var(--accent)}.sc.g .sv{color:var(--gold)}.sc.k .sv{color:var(--ok)}.sc.h .sv{color:var(--hot)}
 .sn{font-size:11px;color:var(--dim);}.sn.up{color:var(--ok);}
-
-/* CARDS */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px;}
 .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .ct{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
 .ca{font-size:12px;color:var(--accent);cursor:pointer;background:none;border:1px solid var(--borderb);padding:3px 10px;border-radius:20px;font-family:'Barlow',sans-serif;transition:background .15s;}
 .ca:hover{background:rgba(0,170,255,.12);}
 .ca.red{color:var(--hot);border-color:rgba(255,77,77,.4);}.ca.red:hover{background:rgba(255,77,77,.1);}
-.ca.gold{color:var(--gold);border-color:rgba(240,165,0,.4);}.ca.gold:hover{background:rgba(240,165,0,.1);}
-
-/* GRIDS */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-
-/* BADGES */
 .badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;}
 .b-b{background:rgba(45,125,210,.15);color:var(--blue2);}
 .b-c{background:rgba(0,170,255,.12);color:var(--accent);}
 .b-g{background:rgba(240,165,0,.15);color:var(--gold);}
 .b-k{background:rgba(34,197,94,.12);color:var(--ok);}
-.b-r{background:rgba(239,68,68,.12);color:var(--err);}
 .b-dim{background:rgba(74,112,144,.2);color:var(--t2);}
-.b-nj{background:rgba(45,125,210,.2);color:#58a6ff;}
-.b-pa{background:rgba(0,170,255,.15);color:#7dd3fc;}
-.b-de{background:rgba(34,197,94,.15);color:#86efac;}
-.b-md{background:rgba(240,165,0,.15);color:#fde68a;}
 .b-hot{background:rgba(255,77,77,.15);color:var(--hot);border:1px solid rgba(255,77,77,.3);}
 .tag{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;background:rgba(0,170,255,.08);color:var(--accent);border:1px solid rgba(0,170,255,.2);}
-
-/* PROGRESS */
 .pbar{height:5px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:5px;}
 .pfill{height:100%;border-radius:3px;transition:width .6s;}
 .pfill.b{background:var(--blue2)}.pfill.c{background:var(--accent)}.pfill.g{background:var(--gold)}.pfill.k{background:var(--ok)}
-
-/* ACTIVITY */
 .alist{display:flex;flex-direction:column;}
 .aitem{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(45,125,210,.08);}
 .aitem:last-child{border-bottom:none;}
@@ -104,16 +98,12 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--t1);min-he
 .atext{font-size:13px;color:var(--t2);line-height:1.4;}
 .atext strong{color:var(--t1);}
 .atime{font-size:11px;color:var(--dim);margin-top:1px;}
-
-/* TABLE */
 .tbl{width:100%;border-collapse:collapse;}
 .tbl th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);padding:6px 9px;border-bottom:1px solid var(--border);font-weight:600;}
 .tbl td{padding:8px 9px;font-size:13px;color:var(--t2);border-bottom:1px solid rgba(45,125,210,.08);vertical-align:middle;}
 .tbl tr:last-child td{border-bottom:none;}
 .tbl tr:hover td{background:rgba(0,170,255,.04);}
 .tbl td strong{color:var(--t1);font-weight:500;}
-
-/* QUICK LINKS */
 .qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;}
 .qlink{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:12px 8px;color:var(--t2);font-size:11px;text-align:center;transition:all .2s;cursor:pointer;font-weight:500;}
 .qlink:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px);}
@@ -122,8 +112,6 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--t1);min-he
 .qlink.gl{border-color:rgba(240,165,0,.3);color:var(--gold);}
 .qlink.gl:hover{border-color:var(--gold);background:rgba(240,165,0,.06);}
 .qi{font-size:20px;}
-
-/* FORMS */
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .fg{display:flex;flex-direction:column;gap:5px;}
 .fg.full{grid-column:1/-1;}
@@ -135,24 +123,17 @@ select option{background:var(--panel);}
 .cg{display:flex;flex-wrap:wrap;gap:7px;margin-top:3px;}
 .cl{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer;}
 .cl input[type=checkbox]{width:13px;height:13px;accent-color:var(--accent);padding:0;flex-shrink:0;}
-
-/* BUTTONS */
 .btn{padding:7px 17px;border-radius:6px;font-size:13px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;}
 .btn-p{background:var(--blue2);color:white;}.btn-p:hover{background:var(--accent);}
 .btn-o{background:transparent;color:var(--accent);border:1px solid var(--borderb);}.btn-o:hover{background:rgba(0,170,255,.1);}
 .btn-h{background:var(--hot);color:white;}.btn-h:hover{background:#ff6666;}
 .btn-g{background:var(--gold);color:var(--blue);}.btn-g:hover{background:#fbbf24;}
 .btn-sm{padding:4px 10px;font-size:11px;}
-
-/* INFO BOXES */
 .ibox{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:9px;font-size:13px;color:var(--t2);line-height:1.7;}
 .ibox strong{color:var(--accent);}
-.ibox.gold strong{color:var(--gold);}
 .lbar{background:linear-gradient(135deg,rgba(10,61,107,.5),rgba(0,170,255,.08));border:1px solid var(--borderb);border-radius:var(--r);padding:11px 15px;display:flex;align-items:center;gap:12px;margin-bottom:14px;}
 .lbadge{background:var(--accent);color:var(--blue);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;padding:3px 8px;border-radius:4px;flex-shrink:0;}
 .ltext{font-size:12px;color:var(--t2);}.ltext strong{color:var(--t1);}
-
-/* PIPELINE */
 .pipe{display:flex;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);}
 .pstage{flex:1;padding:11px 7px;text-align:center;background:var(--card2);border-right:1px solid var(--border);cursor:pointer;transition:background .15s;}
 .pstage:last-child{border-right:none;}
@@ -160,46 +141,29 @@ select option{background:var(--panel);}
 .psl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);}
 .psn{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--accent);line-height:1.1;margin:3px 0;}
 .psv{font-size:11px;color:var(--t2);}
-
-/* TERRITORY */
-.tstrip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
-.spill{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;}
-.spill.ltc{background:rgba(0,170,255,.15);border:1px solid var(--borderb);color:var(--accent);}
-.spill.oth{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.3);color:var(--gold);}
-.spill.fut{background:rgba(74,112,144,.15);border:1px dashed var(--dim);color:var(--dim);}
-
-/* CONTACTS */
 .ccard{background:var(--card2);border:1px solid var(--border);border-radius:var(--r);padding:13px;display:flex;gap:11px;align-items:flex-start;margin-bottom:8px;cursor:pointer;}
 .ccard:hover{border-color:var(--accent);}
 .cav{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue2),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:white;flex-shrink:0;}
 .cinfo{flex:1;}.cname{font-size:14px;font-weight:600;color:var(--t1);}
 .crole{font-size:12px;color:var(--t2);}.cdet{font-size:12px;color:var(--dim);margin-top:2px;}
 .cact{display:flex;gap:5px;flex-shrink:0;}
-
-/* SEARCH */
 .sbar{display:flex;gap:8px;margin-bottom:12px;}
 .sinput{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--t1);font-size:13px;font-family:'Barlow',sans-serif;outline:none;}
 .sinput:focus{border-color:var(--accent);}
 .sinput::placeholder{color:var(--dim);}
-
-/* KB */
 .kitem{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:all .15s;margin-bottom:8px;}
 .kitem:hover{border-color:var(--accent);}
 .ktit{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px;}
 .kex{font-size:12px;color:var(--t2);line-height:1.4;}
 .kmeta{display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;}
-
-/* MATRIX */
 .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px;}
 .mcell{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:11px;cursor:pointer;transition:all .2s;}
 .mcell:hover{border-color:var(--accent);transform:translateY(-1px);}
 .mn{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:4px;}
 .ml{font-size:11px;color:var(--t2);line-height:1.5;}
 .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
-
-/* INTEL */
-.vzone{background:linear-gradient(135deg,rgba(255,77,77,.08),rgba(255,140,0,.04));border:1px solid rgba(255,77,77,.3);border-radius:12px;padding:18px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden;}
-.vbtn{width:68px;height:68px;border-radius:50%;background:var(--hot);border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:26px;transition:all .2s;box-shadow:0 0 0 0 rgba(255,77,77,.4);}
+.vzone{background:linear-gradient(135deg,rgba(255,77,77,.08),rgba(255,140,0,.04));border:1px solid rgba(255,77,77,.3);border-radius:12px;padding:18px;text-align:center;margin-bottom:14px;}
+.vbtn{width:68px;height:68px;border-radius:50%;background:var(--hot);border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:26px;transition:all .2s;}
 .vbtn:hover{transform:scale(1.05);}
 .vbtn.rec{background:#ff2222;animation:pring 1.2s infinite;}
 @keyframes pring{0%{box-shadow:0 0 0 0 rgba(255,77,77,.6);}70%{box-shadow:0 0 0 18px rgba(255,77,77,0);}100%{box-shadow:0 0 0 0 rgba(255,77,77,0);}}
@@ -233,14 +197,8 @@ select option{background:var(--panel);}
 @keyframes flick{from{transform:scale(1) rotate(-3deg);}to{transform:scale(1.1) rotate(3deg);}}
 .aisugg{background:rgba(255,77,77,.05);border:1px solid rgba(255,77,77,.2);border-radius:9px;padding:12px;margin-bottom:9px;position:relative;}
 .aisugg::after{content:'AI';position:absolute;top:9px;right:11px;font-size:9px;font-weight:800;color:rgba(255,77,77,.4);letter-spacing:1px;}
-.spin{display:none;padding:20px;text-align:center;}
-.spin.on{display:block;}
-.spinner{width:26px;height:26px;border:2px solid rgba(255,77,77,.2);border-top-color:var(--hot);border-radius:50%;animation:sp .8s linear infinite;display:inline-block;}
-@keyframes sp{to{transform:rotate(360deg);}}
-
-/* PROSPECT FINDER */
 .pf-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
-.pf-tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--t2);transition:all .2s;text-transform:uppercase;}
+.pf-tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;font-family:'Barlow Condensed',sans-serif;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--t2);transition:all .2s;text-transform:uppercase;}
 .pf-tab:hover,.pf-tab.on{background:rgba(0,170,255,.12);border-color:var(--accent);color:var(--accent);}
 .pf-content{display:none;}.pf-content.on{display:block;}
 .ind-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
@@ -259,15 +217,10 @@ select option{background:var(--panel);}
 .state-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .sf-btn{padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--t2);transition:all .2s;}
 .sf-btn:hover,.sf-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(0,170,255,.08);}
-
-/* SHARE MODULES */
 .mod-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;}
-.mod-icon{font-size:28px;margin-bottom:8px;}
 .mod-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--t1);margin-bottom:6px;}
-.mod-preview{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:12px;padding:10px;background:var(--bg);border-radius:6px;border:1px solid var(--border);}
+.mod-preview{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:12px;padding:10px;background:var(--bg);border-radius:6px;border:1px solid var(--border);white-space:pre-wrap;}
 .mod-actions{display:flex;gap:8px;flex-wrap:wrap;}
-
-/* ROADMAP */
 .road-col{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;}
 .road-col-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
 .road-col-title.doing{color:var(--hot);}
@@ -282,48 +235,25 @@ select option{background:var(--panel);}
 .road-dot.future{background:var(--gold);}
 .road-note{background:rgba(240,165,0,.07);border:1px solid rgba(240,165,0,.2);border-radius:8px;padding:11px;margin-top:14px;}
 .road-note textarea{background:transparent;border:none;color:var(--t2);font-size:13px;width:100%;resize:none;outline:none;min-height:60px;}
-
-/* MODAL */
 .moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;align-items:center;justify-content:center;padding:14px;}
 .moverlay.on{display:flex;}
 .modal{background:var(--panel);border:1px solid var(--borderb);border-radius:12px;padding:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;}
 .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;}
 .mtit{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;}
 .mclose{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;}.mclose:hover{color:var(--t1);}
-
-/* TOAST */
 .toast{position:fixed;bottom:70px;right:14px;background:var(--ok);color:white;padding:9px 15px;border-radius:8px;font-size:13px;font-weight:600;transform:translateY(60px);opacity:0;transition:all .3s;z-index:1000;pointer-events:none;}
 .toast.on{transform:translateY(0);opacity:1;}
-
-/* BOTTOM NAV */
 .bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--border);z-index:200;padding-bottom:env(safe-area-inset-bottom,0);}
 .bnav-i{display:flex;justify-content:space-around;align-items:center;height:60px;}
 .nbtn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--dim);font-size:9px;padding:6px 8px;border-radius:8px;transition:all .2s;font-family:'Barlow',sans-serif;text-transform:uppercase;letter-spacing:.5px;}
 .nbtn.on{color:var(--accent);}
 .nbtn.hh{color:var(--hot)!important;}
-.nbtn.gg{color:var(--gold)!important;}
 .nbtn svg{width:20px;height:20px;}
-
-.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:linear-gradient(135deg,#060e1a 0%,#0a2a4a 100%);}
-.login-logo{width:180px;margin-bottom:32px;}
-.login-card{background:var(--panel);border:1px solid var(--borderb);border-radius:16px;padding:32px;width:100%;max-width:400px;}
-.login-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;text-align:center;margin-bottom:6px;}
-.login-sub{font-size:13px;color:var(--t2);text-align:center;margin-bottom:24px;}
-.login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
-.login-field label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);}
-.login-field input{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--t1);padding:12px 14px;font-size:15px;outline:none;width:100%;}
-.login-field input:focus{border-color:var(--accent);}
-.login-btn{width:100%;padding:14px;border-radius:8px;background:var(--blue2);color:white;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;margin-top:8px;}
-.login-btn:hover{background:var(--accent);}
-.login-error{color:var(--err);font-size:13px;text-align:center;margin-top:10px;display:none;}
-.logout-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--dim);cursor:pointer;font-family:'Barlow',sans-serif;}
-.logout-btn:hover{color:var(--err);border-color:var(--err);}
 .empty-state{text-align:center;padding:30px;color:var(--dim);}
 .empty-state-icon{font-size:32px;margin-bottom:8px;}
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--blue);border-radius:2px;}
-
 @media(max-width:768px){
   .sidebar{display:none;}.bnav{display:block;}
   .main{padding:12px;padding-bottom:74px;}
@@ -334,118 +264,68 @@ select option{background:var(--panel);}
   .mgrid{grid-template-columns:1fr 1fr;}
   .pipe{flex-wrap:wrap;}
   .pstage{min-width:calc(33% - 1px);}
+  .topbar .brand-sub{display:none;}
 }
 </style>
 </head>
 <body>
-
 <div id="login-screen" class="login-screen">
-  <img src="velocity-logo.png" alt="Velocity" class="login-logo">
+  <img src="VELOCITY_LOGO_OUTLINES_FINAL_COLOR.png" alt="Velocity" class="login-logo">
   <div class="login-card">
     <div class="login-title">Welcome Back</div>
     <div class="login-sub">Sign in to your Velocity dashboard</div>
     <div class="login-field"><label>Email</label><input type="email" id="login-email" placeholder="your@email.com"></div>
     <div class="login-field"><label>Password</label><input type="password" id="login-password" placeholder="••••••••"></div>
     <button class="login-btn" onclick="doLogin()">Sign In</button>
-    <div class="login-error" id="login-error">Invalid email or password.</div>
+    <div class="login-error" id="login-error">Invalid email or password. Please try again.</div>
   </div>
 </div>
 <div id="main-app" style="display:none;">
 <div class="topbar">
-  <div class="topbar-left">
-    <div class="logo">LTC</div>
-    <div class="brand-sub">Rep Dashboard</div>
-  </div>
+  <div class="topbar-left"><div class="logo">LTC</div><div class="brand-sub">Rep Dashboard</div></div>
   <div class="topbar-right">
-    <div class="hot-pill" onclick="nav('intel')">
-      <div class="hot-dot"></div><span id="hotbadge">3 HOT</span>
-    </div>
-    <div class="rep-pill" id="user-pill">👤 TJ</div>
+    <div class="hot-pill" onclick="nav('intel')"><div class="hot-dot"></div><span id="hotbadge">0 HOT</span></div>
+    <div class="rep-pill" id="user-pill">👤</div>
     <button class="logout-btn" onclick="doLogout()">Sign Out</button>
   </div>
 </div>
-
 <div class="app">
   <nav class="sidebar">
     <div class="snav">
       <div class="slabel">Overview</div>
-      <a href="#" id="sn-dashboard" class="on" onclick="nav('dashboard');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
-      </a>
+      <a href="#" id="sn-dashboard" class="on" onclick="nav('dashboard');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
       <div class="slabel">Find Business</div>
-      <a href="#" id="sn-prospects" onclick="nav('prospects');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Prospect Finder
-      </a>
-      <a href="#" id="sn-share" onclick="nav('share');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share a Module
-      </a>
+      <a href="#" id="sn-prospects" onclick="nav('prospects');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Prospect Finder</a>
+      <a href="#" id="sn-share" onclick="nav('share');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share a Module</a>
       <div class="slabel">Intelligence</div>
-      <a href="#" id="sn-intel" class="hot-link" onclick="nav('intel');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 3.87-7 13-7 13S5 12.87 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2"/></svg>🔥 Intel Hub
-      </a>
-      <div class="slabel">Accounts</div>
-      <a href="#" id="sn-accounts" onclick="nav('accounts');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Accounts
-      </a>
-      <a href="#" id="sn-contacts" onclick="nav('contacts');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>Contacts
-      </a>
-      <a href="#" id="sn-pipeline" onclick="nav('pipeline');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Pipeline
-      </a>
+      <a href="#" id="sn-intel" class="hot-link" onclick="nav('intel');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 3.87-7 13-7 13S5 12.87 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2"/></svg>🔥 Intel Hub</a>
+      <div class="slabel">Customers</div>
+      <a href="#" id="sn-customers" onclick="nav('customers');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Customers</a>
+      <a href="#" id="sn-contacts" onclick="nav('contacts');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>Contacts</a>
+      <a href="#" id="sn-pipeline" onclick="nav('pipeline');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Pipeline</a>
       <div class="slabel">Sales Tools</div>
-      <a href="#" id="sn-knowledge" onclick="nav('knowledge');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Knowledge Base
-      </a>
-      <a href="#" id="sn-resources" onclick="nav('resources');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>LTC Resources
-      </a>
-      <div class="slabel">Project</div>
+      <a href="#" id="sn-knowledge" onclick="nav('knowledge');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Knowledge Base</a>
+      <a href="#" id="sn-resources" onclick="nav('resources');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>LTC Resources</a>
       <div class="slabel" id="admin-section" style="display:none;">Admin</div>
-      <a href="#" id="sn-roadmap" class="road-link" style="display:none;" onclick="nav('roadmap');return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>🗺️ Roadmap
-      </a>
+      <a href="#" id="sn-roadmap" class="road-link" style="display:none;" onclick="nav('roadmap');return false;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>🗺️ Roadmap</a>
     </div>
   </nav>
-
   <main class="main">
-
-    <!-- DASHBOARD -->
-    <div class="view on" id="view-dashboard">
-      <div class="ph"><div class="pt">Good Morning, TJ! 👋</div><div class="ps" id="today-sub"></div></div>
+<div class="view on" id="view-dashboard">
+      <div class="ph"><div class="pt" id="dash-greeting">Good Morning! 👋</div><div class="ps" id="today-sub"></div></div>
       <div class="lbar"><div class="lbadge">LECHLER</div><div class="ltext"><strong>LTC × Lechler</strong> — Exclusive North American distributor. ISO 9001 &amp; 14000. Direct adhesion on aluminum, PVC, vinyl, steel &amp; more. <strong>1 844 417-3030</strong></div></div>
       <div class="hotbox">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--hot);display:flex;align-items:center;gap:6px;"><span class="flame">🔥</span>Hot Intel</div>
           <button class="ca red" onclick="nav('intel')">View All →</button>
         </div>
-        <div id="dash-hot"></div>
+        <div id="dash-hot"><div style="font-size:12px;color:var(--dim)">No hot intel yet — tap Voice Intel to capture something! 🎙️</div></div>
       </div>
       <div class="sgrid">
-        <div class="sc c"><div class="sl">Accounts</div><div class="sv" id="dash-acct-cnt">5</div><div class="sn">NJ · PA · DE · MD</div></div>
-        <div class="sc g"><div class="sl">Open Opps</div><div class="sv">11</div><div class="sn">$48,200 value</div></div>
-        <div class="sc h"><div class="sl">Intel Signals</div><div class="sv" id="dash-intel-cnt">3</div><div class="sn">needs action</div></div>
-        <div class="sc k"><div class="sl">Won This Month</div><div class="sv">$14K</div><div class="sn up">↑ 22% vs last</div></div>
-      </div>
-      <div class="g2">
-        <div class="card">
-          <div class="ch"><div class="ct">Today's Tasks</div><button class="ca" onclick="showModal('add-task')">+ Add</button></div>
-          <div class="alist">
-            <div class="aitem"><div class="adot c"></div><div><div class="atext"><strong>Follow up</strong> — Precision Millwork (NJ) · aluminum D&amp;W quote</div><div class="atime">9:00 AM · High Priority</div></div></div>
-            <div class="aitem"><div class="adot h"></div><div><div class="atext"><strong>🔥 Intel follow-up</strong> — EastCoast Extrusions · $200K/yr paint spend</div><div class="atime">ASAP · From dinner intel</div></div></div>
-            <div class="aitem"><div class="adot g"></div><div><div class="atext"><strong>Demo call</strong> — Northern Sign Co. (PA) · aluminum &amp; vinyl</div><div class="atime">11:30 AM · Signs line</div></div></div>
-            <div class="aitem"><div class="adot k"></div><div><div class="atext"><strong>Check in</strong> — Maple Furniture (PA) · IVE reorder</div><div class="atime">4:00 PM</div></div></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="ch"><div class="ct">Pipeline by Product</div></div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div><div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--t2)">Doors &amp; Windows</span><span style="color:var(--accent);font-weight:600">$18,400</span></div><div class="pbar"><div class="pfill c" style="width:72%"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--t2)">Heavy Machinery</span><span style="color:var(--blue2);font-weight:600">$14,900</span></div><div class="pbar"><div class="pfill b" style="width:58%"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--t2)">Advertising Signs</span><span style="color:var(--gold);font-weight:600">$9,700</span></div><div class="pbar"><div class="pfill g" style="width:38%"></div></div></div>
-            <div><div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--t2)">IVE / Arch. Design</span><span style="color:var(--ok);font-weight:600">$5,200</span></div><div class="pbar"><div class="pfill k" style="width:20%"></div></div></div>
-          </div>
-        </div>
+        <div class="sc c"><div class="sl">Customers</div><div class="sv" id="dash-cust-cnt">0</div><div class="sn">NJ · PA · DE · MD</div></div>
+        <div class="sc g"><div class="sl">Open Opps</div><div class="sv" id="dash-pipe-cnt">0</div><div class="sn">in pipeline</div></div>
+        <div class="sc h"><div class="sl">Intel Signals</div><div class="sv" id="dash-intel-cnt">0</div><div class="sn">captured</div></div>
+        <div class="sc k"><div class="sl">Contacts</div><div class="sv" id="dash-contact-cnt">0</div><div class="sn">in database</div></div>
       </div>
       <div class="card">
         <div class="ch"><div class="ct">Quick Actions</div></div>
@@ -454,326 +334,38 @@ select option{background:var(--panel);}
           <div class="qlink gl" onclick="nav('prospects')"><div class="qi">🔍</div>Find Prospects</div>
           <div class="qlink gl" onclick="nav('share')"><div class="qi">📤</div>Share Module</div>
           <div class="qlink" onclick="showModal('log-call')"><div class="qi">📞</div>Log Call</div>
+          <div class="qlink" onclick="showModal('new-customer')"><div class="qi">➕</div>Add Customer</div>
           <div class="qlink" onclick="showModal('new-opportunity')"><div class="qi">💼</div>New Opp</div>
-          <div class="qlink" onclick="showModal('new-account')"><div class="qi">➕</div>Add Account</div>
         </div>
       </div>
     </div>
 
-    <!-- PROSPECT FINDER -->
-    <div class="view" id="view-prospects">
-      <div class="ph"><div class="pt">🔍 Prospect Finder</div><div class="ps">Find new customers by product line — for TJ and the inside team</div></div>
-      <div class="lbar"><div class="lbadge">TIP</div><div class="ltext">TJ knows D&amp;W well — use this tool to find <strong>Signs, Machinery, and IVE prospects</strong> in your territory. The inside person can also use this to research and book appointments before TJ's visits.</div></div>
-
-      <!-- State Filter -->
-      <div style="margin-bottom:6px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;">Filter by State</div>
-      <div class="state-filter">
-        <div class="sf-btn on" onclick="filterState(this,'ALL')">All States</div>
-        <div class="sf-btn" onclick="filterState(this,'NJ')">NJ</div>
-        <div class="sf-btn" onclick="filterState(this,'PA')">Eastern PA</div>
-        <div class="sf-btn" onclick="filterState(this,'DE')">DE</div>
-        <div class="sf-btn" onclick="filterState(this,'MD')">MD</div>
-      </div>
-
-      <!-- Product Line Tabs -->
-      <div class="pf-tabs">
-        <div class="pf-tab on" onclick="pfTab(this,'signs')">🪧 Signs</div>
-        <div class="pf-tab" onclick="pfTab(this,'machinery')">🚜 Machinery</div>
-        <div class="pf-tab" onclick="pfTab(this,'ive')">🛋️ IVE / Furniture</div>
-        <div class="pf-tab" onclick="pfTab(this,'dw')">🚪 Doors &amp; Windows</div>
-      </div>
-
-      <!-- SIGNS -->
-      <div class="pf-content on" id="pf-signs">
-        <div class="card" style="margin-bottom:10px;"><div style="font-size:13px;color:var(--t2);line-height:1.6;"><strong style="color:var(--t1)">🪧 Advertising Signs — Who to Call</strong><br>Paint for aluminum, vinyl, Sintra, brass, fabric, plastic, MDF panels. 10,000+ colors, Pantone matching, 24-48 hr rush delivery. These businesses buy paint regularly and care deeply about color accuracy and turnaround.</div></div>
-        <div class="ind-card">
-          <div class="ind-name">Sign Manufacturing Shops</div>
-          <div class="ind-desc">Companies that fabricate exterior and interior signs for businesses, retail, hospitals, municipalities. High paint volume, custom colors on every job.</div>
-          <div class="ind-examples">Search terms: <span>"sign company", "sign manufacturer", "sign fabrication", "commercial signs"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','sign manufacturer near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn li" href="#" onclick="openSearch('li','sign manufacturer','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-signs-shop');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Print &amp; Display Companies</div>
-          <div class="ind-desc">Large format printers and display fabricators who also paint or finish substrates. Transition from ink-only to paint finishing is common.</div>
-          <div class="ind-examples">Search terms: <span>"large format print", "display fabrication", "trade show displays", "exhibit company"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','large format print display company near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn li" href="#" onclick="openSearch('li','display fabrication company','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-signs-print');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Franchise &amp; Retail Rollout Programs</div>
-          <div class="ind-desc">National chains and franchises requiring consistent signage color across hundreds of locations. Huge volume, extremely color-consistency sensitive.</div>
-          <div class="ind-examples">Search terms: <span>"franchise sign program", "retail signage", "brand standards signage"</span></div>
-          <div class="search-btns">
-            <a class="search-btn li" href="#" onclick="openSearch('li','franchise signage program manager','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-signs-franchise');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Fleet Graphics &amp; Vehicle Wrap Shops</div>
-          <div class="ind-desc">Companies finishing aluminum and vinyl for vehicle and fleet graphics. High volume, consistent color matching critical for fleet uniformity.</div>
-          <div class="ind-examples">Search terms: <span>"vehicle wrap", "fleet graphics", "fleet branding"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','vehicle wrap fleet graphics near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-signs-fleet');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Wayfinding &amp; Architectural Signage</div>
-          <div class="ind-desc">Hospital, campus, and municipal wayfinding sign programs. Complex color systems, ADA compliance, long-term durability required.</div>
-          <div class="ind-examples">Search terms: <span>"wayfinding signage", "architectural signs", "ADA signage", "environmental graphics"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','wayfinding architectural signage near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn li" href="#" onclick="openSearch('li','wayfinding environmental graphics','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-signs-wayfinding');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- MACHINERY -->
-      <div class="pf-content" id="pf-machinery">
-        <div class="card" style="margin-bottom:10px;"><div style="font-size:13px;color:var(--t2);line-height:1.6;"><strong style="color:var(--t1)">🚜 Heavy &amp; Stationary Machinery — Who to Call</strong><br>Paint for steel, metal, iron, agricultural and industrial equipment. Epoxy, zinc-rich, polyurethane systems. 110+ base colors, custom in 72 hrs. LTC sends technicians to optimize painting lines.</div></div>
-        <div class="ind-card">
-          <div class="ind-name">Equipment Manufacturers (OEM)</div>
-          <div class="ind-desc">Companies that build industrial, agricultural, or construction equipment. Paint is a production line requirement — volume is high and consistency is critical.</div>
-          <div class="ind-examples">Search terms: <span>"equipment manufacturer", "OEM manufacturing", "industrial equipment maker", "construction equipment"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','equipment manufacturer industrial near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn li" href="#" onclick="openSearch('li','equipment manufacturer operations manager','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-mach-oem');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Metal Fabricators &amp; Job Shops</div>
-          <div class="ind-desc">Steel and metal fabrication shops that finish their own work. Many paint in-house and deal with color consistency and VOC compliance issues regularly.</div>
-          <div class="ind-examples">Search terms: <span>"metal fabrication", "steel fabricator", "job shop", "custom fabrication", "sheet metal"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','metal fabrication shop near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn li" href="#" onclick="openSearch('li','metal fabrication shop owner','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-mach-fab');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Truck Body Builders &amp; Upfitters</div>
-          <div class="ind-desc">Companies that build or upfit commercial truck bodies — delivery trucks, utility vehicles, specialty vehicles. High steel/metal paint volume.</div>
-          <div class="ind-examples">Search terms: <span>"truck body manufacturer", "truck upfitter", "utility body", "service body"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','truck body manufacturer upfitter near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-mach-truck');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Agricultural Equipment Dealers &amp; Repair</div>
-          <div class="ind-desc">Farm equipment dealers and repair shops that refinish equipment. Strong market in eastern PA, MD, and DE agricultural corridor.</div>
-          <div class="ind-examples">Search terms: <span>"farm equipment dealer", "agricultural equipment repair", "tractor dealer"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','agricultural farm equipment dealer near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-mach-ag');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- IVE -->
-      <div class="pf-content" id="pf-ive">
-        <div class="card" style="margin-bottom:10px;"><div style="font-size:13px;color:var(--t2);line-height:1.6;"><strong style="color:var(--t1)">🛋️ IVE / Architectural Design &amp; Furniture — Who to Call</strong><br>Paint for MDF, wood, glass, panels. Italian-developed finishes. LWE color system matches any designer specification. Kitchens, cabinets, furniture, architectural elements.</div></div>
-        <div class="ind-card">
-          <div class="ind-name">Cabinet &amp; Kitchen Manufacturers</div>
-          <div class="ind-desc">Companies manufacturing kitchen and bathroom cabinets. High MDF and wood panel volume. Designer color specs are a constant challenge — LTC's color system is a direct solution.</div>
-          <div class="ind-examples">Search terms: <span>"cabinet manufacturer", "kitchen cabinet maker", "RTA cabinets", "custom cabinetry"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','cabinet manufacturer kitchen near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn li" href="#" onclick="openSearch('li','cabinet manufacturer production manager','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-ive-cabinet');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Custom Furniture Manufacturers</div>
-          <div class="ind-desc">Residential and commercial furniture makers. Often working to designer specifications with complex finishes, effects, and color matching requirements.</div>
-          <div class="ind-examples">Search terms: <span>"furniture manufacturer", "custom furniture", "contract furniture", "commercial furniture"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','furniture manufacturer custom near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn li" href="#" onclick="openSearch('li','furniture manufacturer finishing manager','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-ive-furniture');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Millwork &amp; Architectural Woodwork Shops</div>
-          <div class="ind-desc">Custom millwork, trim, doors, panels, skirting, and architectural elements for commercial and residential projects. Highly spec-driven.</div>
-          <div class="ind-examples">Search terms: <span>"millwork shop", "architectural woodwork", "custom millwork", "wood moulding"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','millwork architectural woodwork near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-ive-millwork');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Interior Design Firms &amp; Spec Consultants</div>
-          <div class="ind-desc">Designers who specify finishes on projects. Getting in front of designers means they specify Lechler IVE on jobs — pulling business through to manufacturers.</div>
-          <div class="ind-examples">Search terms: <span>"interior design firm", "interior designer commercial", "design specification"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','interior design firm commercial near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn li" href="#" onclick="openSearch('li','interior designer commercial specification','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-ive-designer');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- D&W -->
-      <div class="pf-content" id="pf-dw">
-        <div class="card" style="margin-bottom:10px;"><div style="font-size:13px;color:var(--t2);line-height:1.6;"><strong style="color:var(--t1)">🚪 Doors &amp; Windows — TJ's Home Territory</strong><br>TJ has strong existing relationships here. Use this to find new accounts in DE and MD, or to find prospects TJ hasn't reached yet in NJ and Eastern PA.</div></div>
-        <div class="ind-card">
-          <div class="ind-name">Window &amp; Door Manufacturers</div>
-          <div class="ind-desc">Companies manufacturing aluminum, PVC, and vinyl window and door profiles. Direct adhesion on aluminum and PVC — no primer step — is the primary selling point.</div>
-          <div class="ind-examples">Search terms: <span>"window manufacturer", "door manufacturer", "fenestration", "aluminum extrusion finisher"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','window door manufacturer near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn li" href="#" onclick="openSearch('li','window door manufacturer production','');return false;">in LinkedIn</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-dw-mfg');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Replacement Window Companies</div>
-          <div class="ind-desc">Companies that install replacement windows and may refinish or repaint frames. Growing market in mid-Atlantic states.</div>
-          <div class="ind-examples">Search terms: <span>"replacement windows", "window installation", "window contractor"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','replacement window company near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-dw-replacement');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-        <div class="ind-card">
-          <div class="ind-name">Aluminum Extruders &amp; Profile Finishers</div>
-          <div class="ind-desc">Companies extruding or finishing aluminum profiles for construction, fenestration, and architectural applications.</div>
-          <div class="ind-examples">Search terms: <span>"aluminum extrusion", "profile finishing", "aluminum fabrication"</span></div>
-          <div class="search-btns">
-            <a class="search-btn maps" href="#" onclick="openSearch('maps','aluminum extrusion profile finishing near','');return false;">🗺️ Google Maps</a>
-            <a class="search-btn call" href="#" onclick="showModal('script-dw-extrusion');return false;">📞 Cold Call Script</a>
-          </div>
-        </div>
-      </div>
+    <div class="view" id="view-customers">
+      <div class="ph"><div class="pt">Customers</div><div class="ps">NJ · Eastern PA · DE · MD territory</div></div>
+      <div class="sbar"><input class="sinput" placeholder="Search customers..." id="customer-search" oninput="filterCustomers()"><button class="btn btn-p" onclick="showModal('new-customer')">+ Add Customer</button></div>
+      <div class="card"><div id="customers-table"><div class="empty-state"><div class="empty-state-icon">🏭</div><div>No customers yet. Add your first one!</div></div></div></div>
     </div>
 
-    <!-- SHARE MODULES -->
-    <div class="view" id="view-share">
-      <div class="ph"><div class="pt">📤 Share a Module</div><div class="ps">One-tap — send a product overview to any prospect by text or email</div></div>
-      <div class="ibox" style="margin-bottom:14px;"><strong>How to use:</strong> TJ is walking out the door after meeting someone interested in signs. Tap the Signs module → tap Text or Email → a pre-written message opens ready to send. No typing needed.<br><br><strong>Note:</strong> These are built from LTC's website. When LTC provides literature, we'll update these automatically.</div>
-
-      <!-- D&W Module -->
-      <div class="mod-card">
-        <div class="mod-icon">🚪</div>
-        <div class="mod-name">Doors &amp; Windows — LTC / Lechler</div>
-        <div class="mod-preview" id="prev-dw">Hi [Name], great meeting you! As promised, here's a quick overview of what we offer for window &amp; door manufacturers:
-
-LTC distributes Lechler industrial paint — the world leader for 150+ years. For aluminum and PVC profiles, we direct-adhere with NO primer step, saving you time and material on every run. Water-based, ASTM certified (613/614/615), low VOC. Custom colors in 24-72 hours in exact quantities — no waste.
-
-We'll send a technician to your facility at no cost to demonstrate on your actual substrates.
-
-More info: https://ltcproducts.com/en/doors-and-windows/
-Call us: 1 844 417-3030
-
-— TJ | LTC Independent Rep | NJ · PA · DE · MD</div>
-        <div class="mod-actions">
-          <button class="btn btn-p btn-sm" onclick="shareModule('text','dw')">📱 Text</button>
-          <button class="btn btn-o btn-sm" onclick="shareModule('email','dw')">✉️ Email</button>
-          <button class="btn btn-o btn-sm" onclick="copyModule('dw')">📋 Copy</button>
-        </div>
-      </div>
-
-      <!-- Signs Module -->
-      <div class="mod-card">
-        <div class="mod-icon">🪧</div>
-        <div class="mod-name">Advertising Signs — LTC / Lechler</div>
-        <div class="mod-preview" id="prev-sign">Hi [Name], great meeting you! Here's a quick overview of what we offer for sign manufacturers:
-
-LTC distributes Lechler industrial paint — 10,000+ colors including full Pantone matching. Direct adhesion on aluminum, vinyl, Sintra, brass, fabric, plastic, and more. Custom colors developed in 24-48 HOURS at no extra cost. UV resistant, durable, low VOC.
-
-We'll bring a technician to your shop for a no-obligation demo on your actual substrates.
-
-More info: https://ltcproducts.com/en/advertizing-signs/
-Call us: 1 844 417-3030
-
-— TJ | LTC Independent Rep | NJ · PA · DE · MD</div>
-        <div class="mod-actions">
-          <button class="btn btn-p btn-sm" onclick="shareModule('text','sign')">📱 Text</button>
-          <button class="btn btn-o btn-sm" onclick="shareModule('email','sign')">✉️ Email</button>
-          <button class="btn btn-o btn-sm" onclick="copyModule('sign')">📋 Copy</button>
-        </div>
-      </div>
-
-      <!-- Machinery Module -->
-      <div class="mod-card">
-        <div class="mod-icon">🚜</div>
-        <div class="mod-name">Heavy Machinery — LTC / Lechler</div>
-        <div class="mod-preview" id="prev-mach">Hi [Name], great meeting you! Here's a quick overview of what we offer for equipment manufacturers:
-
-LTC distributes Lechler industrial paint — world leader for steel and heavy equipment finishing. Epoxy primer, zinc-rich, polyurethane, and direct-to-substrate systems. 110+ base colors, custom in 72 hours. Low VOC, water-based options.
-
-What sets us apart: we send a technical expert to YOUR facility to analyze your painting process and optimize your paint cycle — at no cost.
-
-More info: https://ltcproducts.com/en/heavy-and-stationary-machinery/
-Call us: 1 844 417-3030
-
-— TJ | LTC Independent Rep | NJ · PA · DE · MD</div>
-        <div class="mod-actions">
-          <button class="btn btn-p btn-sm" onclick="shareModule('text','mach')">📱 Text</button>
-          <button class="btn btn-o btn-sm" onclick="shareModule('email','mach')">✉️ Email</button>
-          <button class="btn btn-o btn-sm" onclick="copyModule('mach')">📋 Copy</button>
-        </div>
-      </div>
-
-      <!-- IVE Module -->
-      <div class="mod-card">
-        <div class="mod-icon">🛋️</div>
-        <div class="mod-name">Furniture &amp; Architectural Design (IVE) — LTC / Lechler</div>
-        <div class="mod-preview" id="prev-ive">Hi [Name], great meeting you! Here's a quick overview of what we offer for furniture and cabinet manufacturers:
-
-LTC distributes the Lechler IVE line — premium Italian-developed finishes for MDF, wood, and glass. The LWE color system matches any designer specification just-in-time, in exactly the quantity you need. Kitchens, cabinets, furniture, floors, panels, and architectural elements.
-
-No more leftover paint. No more color mismatches. We'll send a technician for a no-obligation demo.
-
-More info: https://ltcproducts.com/en/architectural-design-and-furniture/
-Call us: 1 844 417-3030
-
-— TJ | LTC Independent Rep | NJ · PA · DE · MD</div>
-        <div class="mod-actions">
-          <button class="btn btn-p btn-sm" onclick="shareModule('text','ive')">📱 Text</button>
-          <button class="btn btn-o btn-sm" onclick="shareModule('email','ive')">✉️ Email</button>
-          <button class="btn btn-o btn-sm" onclick="copyModule('ive')">📋 Copy</button>
-        </div>
-      </div>
-
-      <!-- Why LTC Module -->
-      <div class="mod-card">
-        <div class="mod-icon">🏢</div>
-        <div class="mod-name">Why LTC / Lechler — Company Overview</div>
-        <div class="mod-preview" id="prev-ltc">Hi [Name], great connecting! Here's a quick overview of LTC and Lechler:
-
-LTC is the exclusive North American distributor for Lechler — the world leader in industrial paint with 150+ years of expertise. ISO 9001 (quality) and ISO 14000 (environment) certified.
-
-What makes us different:
-✓ Custom colors in 24-72 hours, exact quantity, no waste
-✓ Direct adhesion on aluminum, PVC, vinyl, steel, MDF, glass
-✓ Water-based, low VOC — 5x below Canadian standard
-✓ Free on-site technical support and process analysis
-✓ I cover NJ, PA, DE, and MD personally
-
-Website: https://ltcproducts.com/en/
-Call us: 1 844 417-3030
-
-— TJ | LTC Independent Rep | NJ · PA · DE · MD</div>
-        <div class="mod-actions">
-          <button class="btn btn-p btn-sm" onclick="shareModule('text','ltc')">📱 Text</button>
-          <button class="btn btn-o btn-sm" onclick="shareModule('email','ltc')">✉️ Email</button>
-          <button class="btn btn-o btn-sm" onclick="copyModule('ltc')">📋 Copy</button>
-        </div>
-      </div>
+    <div class="view" id="view-contacts">
+      <div class="ph"><div class="pt">Contacts</div><div class="ps">Key people at your customers</div></div>
+      <div class="sbar"><input class="sinput" placeholder="Search contacts..."><button class="btn btn-p" onclick="showModal('new-contact')">+ Add Contact</button></div>
+      <div class="card"><div id="contacts-list"><div class="empty-state"><div class="empty-state-icon">👤</div><div>No contacts yet. Add your first one!</div></div></div></div>
     </div>
 
-    <!-- INTEL HUB -->
+    <div class="view" id="view-pipeline">
+      <div class="ph"><div class="pt">Pipeline</div><div class="ps">NJ · Eastern PA · DE · MD opportunities</div></div>
+      <div class="card">
+        <div class="pipe">
+          <div class="pstage"><div class="psl">Prospect</div><div class="psn" id="pipe-prospect">0</div></div>
+          <div class="pstage"><div class="psl">Qualified</div><div class="psn" id="pipe-qualified">0</div></div>
+          <div class="pstage"><div class="psl">Demo Done</div><div class="psn" id="pipe-demo">0</div></div>
+          <div class="pstage"><div class="psl">Proposal</div><div class="psn" id="pipe-proposal">0</div></div>
+          <div class="pstage"><div class="psl">Won</div><div class="psn" id="pipe-won">0</div></div>
+        </div>
+      </div>
+      <div class="card"><div class="ch"><div class="ct">Opportunities</div><button class="ca" onclick="showModal('new-opportunity')">+ New</button></div><div id="pipeline-list"><div class="empty-state"><div class="empty-state-icon">💼</div><div>No opportunities yet.</div></div></div></div>
+    </div>
+
     <div class="view" id="view-intel">
       <div class="ph"><div class="pt">🔥 Intelligence Hub</div><div class="ps">Capture field intel — AI turns it into sales opportunities</div></div>
       <div class="vzone">
@@ -783,24 +375,21 @@ Call us: 1 844 417-3030
         <div class="vstatus" id="vstatus">Tap to start recording</div>
         <div class="vtimer" id="vtimer">0:00</div>
         <div class="tbox" id="tbox"><div class="tlabel">Transcribed Note</div><div id="ttext"></div></div>
-        <div class="vsavebar" id="vsavebar">
-          <button class="btn btn-h btn-sm" onclick="saveVoice()">🔥 Analyze &amp; Save</button>
-          <button class="btn btn-o btn-sm" onclick="clearVoice()">Discard</button>
-        </div>
+        <div class="vsavebar" id="vsavebar"><button class="btn btn-h btn-sm" onclick="saveVoice()">🔥 Analyze &amp; Save</button><button class="btn btn-o btn-sm" onclick="clearVoice()">Discard</button></div>
       </div>
       <div class="iform">
         <div class="iftit">✏️ Type Intel Manually</div>
         <div class="fgrid">
-          <div class="fg"><label>Company / Person Heard About</label><input type="text" id="i-co" placeholder="e.g. EastCoast Extrusions"></div>
-          <div class="fg"><label>State</label><select id="i-st"><option value="">-- State --</option><option>NJ</option><option>Eastern PA</option><option>DE</option><option>MD</option><option>NY</option><option>OH</option><option>VA</option><option>Other</option></select></div>
-          <div class="fg"><label>Source</label><select id="i-src"><option>Dinner / Social</option><option>Trade Show</option><option>Phone Call</option><option>Existing Customer</option><option>LinkedIn / Online</option><option>Cold Call</option><option>Other</option></select></div>
-          <div class="fg"><label>Context</label><select id="i-ctx"><option>Paint Spend / Budget</option><option>Switching Suppliers</option><option>New Product Launch</option><option>Facility Expansion</option><option>Substrate Info</option><option>Competitor Info</option><option>General Lead</option></select></div>
-          <div class="fg full"><label>What Did You Hear?</label><textarea id="i-note" placeholder='e.g. "At dinner with Mike — EastCoast Extrusions buys $200K/yr of paint for aluminum window frames. Currently with Sherwin. Looking to switch Q3."'></textarea></div>
+          <div class="fg"><label>Company Heard About</label><input type="text" id="i-co" placeholder="e.g. EastCoast Extrusions"></div>
+          <div class="fg"><label>State</label><select id="i-st"><option value="">-- State --</option><option>NJ</option><option>Eastern PA</option><option>DE</option><option>MD</option><option>Other</option></select></div>
+          <div class="fg"><label>Source</label><select id="i-src"><option>Dinner / Social</option><option>Trade Show</option><option>Phone Call</option><option>Existing Customer</option><option>LinkedIn</option><option>Other</option></select></div>
+          <div class="fg"><label>Context</label><select id="i-ctx"><option>Paint Spend / Budget</option><option>Switching Suppliers</option><option>New Product Launch</option><option>Facility Expansion</option><option>General Lead</option></select></div>
+          <div class="fg full"><label>What Did You Hear?</label><textarea id="i-note" placeholder="e.g. At dinner with Mike — EastCoast Extrusions buys $200K/yr of paint..."></textarea></div>
           <div class="fg full"><label>Estimated Dollar Opportunity</label><input type="text" id="i-val" placeholder="e.g. $200,000 / year"></div>
         </div>
         <div style="margin-top:11px;display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-h" onclick="addIntel()">🔥 Analyze &amp; Add to Feed</button>
-          <button class="btn btn-o" onclick="clearForm()">Clear</button>
+          <button class="btn btn-o" onclick="clearIntelForm()">Clear</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
@@ -808,91 +397,115 @@ Call us: 1 844 417-3030
         <button class="btn btn-o btn-sm" onclick="regenSugg()">↻ Refresh</button>
       </div>
       <div id="hot-topics" style="margin-bottom:14px;"></div>
-      <div class="card">
-        <div class="ch"><div class="ct">📋 Intel Feed</div><button class="ca red" onclick="clearAllIntel()">Clear All</button></div>
-        <div id="intel-feed"><div class="iempty" id="iempty" style="display:none;text-align:center;padding:24px;color:var(--dim)"><div style="font-size:32px;margin-bottom:8px">🕵️</div><div>No intel yet. Start by recording or typing what you heard.</div></div></div>
+      <div class="card"><div class="ch"><div class="ct">📋 Intel Feed</div><button class="ca red" onclick="clearAllIntel()">Clear All</button></div><div id="intel-feed"><div class="empty-state"><div class="empty-state-icon">🕵️</div><div>No intel yet.</div></div></div></div>
+    </div>
+
+    <div class="view" id="view-prospects">
+      <div class="ph"><div class="pt">🔍 Prospect Finder</div><div class="ps">Find new customers by product line</div></div>
+      <div class="lbar"><div class="lbadge">TIP</div><div class="ltext">TJ knows D&amp;W well — use this to find <strong>Signs, Machinery, and IVE prospects</strong> in your territory.</div></div>
+      <div style="margin-bottom:6px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;">Filter by State</div>
+      <div class="state-filter">
+        <div class="sf-btn on" onclick="filterState(this,'ALL')">All States</div>
+        <div class="sf-btn" onclick="filterState(this,'NJ')">NJ</div>
+        <div class="sf-btn" onclick="filterState(this,'PA')">Eastern PA</div>
+        <div class="sf-btn" onclick="filterState(this,'DE')">DE</div>
+        <div class="sf-btn" onclick="filterState(this,'MD')">MD</div>
+      </div>
+      <div class="pf-tabs">
+        <div class="pf-tab on" onclick="pfTab(this,'signs')">🪧 Signs</div>
+        <div class="pf-tab" onclick="pfTab(this,'machinery')">🚜 Machinery</div>
+        <div class="pf-tab" onclick="pfTab(this,'ive')">🛋️ IVE</div>
+        <div class="pf-tab" onclick="pfTab(this,'dw')">🚪 D&amp;W</div>
+      </div>
+      <div class="pf-content on" id="pf-signs">
+        <div class="ind-card"><div class="ind-name">Sign Manufacturing Shops</div><div class="ind-desc">Companies that fabricate exterior and interior signs. High paint volume, custom colors on every job.</div><div class="ind-examples">Search: <span>"sign company", "sign manufacturer", "sign fabrication"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','sign manufacturer near');return false;">🗺️ Google Maps</a><a class="search-btn li" href="#" onclick="openSearch('li','sign manufacturer');return false;">in LinkedIn</a><a class="search-btn call" href="#" onclick="showModal('script-signs-shop');return false;">📞 Script</a></div></div>
+        <div class="ind-card"><div class="ind-name">Fleet Graphics &amp; Vehicle Wrap</div><div class="ind-desc">Companies finishing aluminum and vinyl for vehicle graphics.</div><div class="ind-examples">Search: <span>"vehicle wrap", "fleet graphics", "fleet branding"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','vehicle wrap fleet graphics near');return false;">🗺️ Google Maps</a></div></div>
+        <div class="ind-card"><div class="ind-name">Wayfinding &amp; Architectural Signs</div><div class="ind-desc">Hospital, campus, and municipal wayfinding programs.</div><div class="ind-examples">Search: <span>"wayfinding signage", "architectural signs", "ADA signage"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','wayfinding architectural signage near');return false;">🗺️ Google Maps</a><a class="search-btn li" href="#" onclick="openSearch('li','wayfinding environmental graphics');return false;">in LinkedIn</a></div></div>
+      </div>
+      <div class="pf-content" id="pf-machinery">
+        <div class="ind-card"><div class="ind-name">Equipment Manufacturers (OEM)</div><div class="ind-desc">Companies building industrial, agricultural, or construction equipment.</div><div class="ind-examples">Search: <span>"equipment manufacturer", "OEM manufacturing", "industrial equipment"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','equipment manufacturer industrial near');return false;">🗺️ Google Maps</a><a class="search-btn li" href="#" onclick="openSearch('li','equipment manufacturer operations');return false;">in LinkedIn</a><a class="search-btn call" href="#" onclick="showModal('script-mach-oem');return false;">📞 Script</a></div></div>
+        <div class="ind-card"><div class="ind-name">Metal Fabricators &amp; Job Shops</div><div class="ind-desc">Steel and metal shops that finish their own work.</div><div class="ind-examples">Search: <span>"metal fabrication", "steel fabricator", "job shop"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','metal fabrication shop near');return false;">🗺️ Google Maps</a><a class="search-btn call" href="#" onclick="showModal('script-mach-fab');return false;">📞 Script</a></div></div>
+        <div class="ind-card"><div class="ind-name">Agricultural Equipment</div><div class="ind-desc">Farm equipment dealers and repair shops. Strong market in eastern PA, MD, DE.</div><div class="ind-examples">Search: <span>"farm equipment dealer", "agricultural equipment repair"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','agricultural farm equipment near');return false;">🗺️ Google Maps</a></div></div>
+      </div>
+      <div class="pf-content" id="pf-ive">
+        <div class="ind-card"><div class="ind-name">Cabinet &amp; Kitchen Manufacturers</div><div class="ind-desc">Companies manufacturing kitchen and bathroom cabinets.</div><div class="ind-examples">Search: <span>"cabinet manufacturer", "kitchen cabinet maker", "custom cabinetry"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','cabinet manufacturer kitchen near');return false;">🗺️ Google Maps</a><a class="search-btn call" href="#" onclick="showModal('script-ive-cabinet');return false;">📞 Script</a></div></div>
+        <div class="ind-card"><div class="ind-name">Custom Furniture Manufacturers</div><div class="ind-desc">Residential and commercial furniture makers working to designer specifications.</div><div class="ind-examples">Search: <span>"furniture manufacturer", "custom furniture", "contract furniture"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','furniture manufacturer custom near');return false;">🗺️ Google Maps</a></div></div>
+        <div class="ind-card"><div class="ind-name">Millwork &amp; Architectural Woodwork</div><div class="ind-desc">Custom millwork, trim, doors, panels for commercial and residential projects.</div><div class="ind-examples">Search: <span>"millwork shop", "architectural woodwork", "custom millwork"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','millwork architectural woodwork near');return false;">🗺️ Google Maps</a></div></div>
+      </div>
+      <div class="pf-content" id="pf-dw">
+        <div class="ind-card"><div class="ind-name">Window &amp; Door Manufacturers</div><div class="ind-desc">Companies manufacturing aluminum, PVC, and vinyl window and door profiles.</div><div class="ind-examples">Search: <span>"window manufacturer", "door manufacturer", "fenestration"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','window door manufacturer near');return false;">🗺️ Google Maps</a><a class="search-btn call" href="#" onclick="showModal('script-dw-mfg');return false;">📞 Script</a></div></div>
+        <div class="ind-card"><div class="ind-name">Aluminum Extruders &amp; Profile Finishers</div><div class="ind-desc">Companies extruding or finishing aluminum profiles.</div><div class="ind-examples">Search: <span>"aluminum extrusion", "profile finishing", "aluminum fabrication"</span></div><div class="search-btns"><a class="search-btn maps" href="#" onclick="openSearch('maps','aluminum extrusion profile finishing near');return false;">🗺️ Google Maps</a></div></div>
       </div>
     </div>
 
-    <!-- ACCOUNTS -->
-    <div class="view" id="view-accounts">
-      <div class="ph"><div class="pt">Accounts</div><div class="ps">NJ · Eastern PA · DE · MD territory</div></div>
-      <div class="sbar"><input class="sinput" placeholder="Search accounts..."><button class="btn btn-p" onclick="showModal('new-account')">+ Add Account</button></div>
-      <div class="card">
-        <table class="tbl"><thead><tr><th>Company</th><th>State</th><th>Substrates</th><th>Line</th><th>Status</th><th>Last Contact</th><th></th></tr></thead><tbody>
-          <tr><td><strong>Precision Millwork</strong></td><td><span class="badge b-nj">NJ</span></td><td><span class="tag">Aluminum</span> <span class="tag">PVC</span></td><td><span class="badge b-c">D&amp;W</span></td><td><span class="badge b-g">Active</span></td><td>Mar 19</td><td><button class="btn btn-o btn-sm">View</button></td></tr>
-          <tr><td><strong>EastCoast Extrusions</strong></td><td><span class="badge b-nj">NJ</span></td><td><span class="tag">Aluminum</span></td><td><span class="badge b-c">D&amp;W</span></td><td><span class="badge b-hot">🔥 Intel</span></td><td>—</td><td><button class="btn btn-o btn-sm">View</button></td></tr>
-          <tr><td><strong>Northern Sign Co.</strong></td><td><span class="badge b-pa">PA</span></td><td><span class="tag">Aluminum</span> <span class="tag">Vinyl</span></td><td><span class="badge b-b">Signs</span></td><td><span class="badge b-c">Prospect</span></td><td>Mar 20</td><td><button class="btn btn-o btn-sm">View</button></td></tr>
-          <tr><td><strong>Valley Equipment</strong></td><td><span class="badge b-nj">NJ</span></td><td><span class="tag">Steel</span></td><td><span class="badge b-dim">Machinery</span></td><td><span class="badge b-g">Active</span></td><td>Mar 18</td><td><button class="btn btn-o btn-sm">View</button></td></tr>
-          <tr><td><strong>Maple Furniture</strong></td><td><span class="badge b-pa">PA</span></td><td><span class="tag">MDF</span> <span class="tag">Wood</span></td><td><span class="badge b-k">IVE</span></td><td><span class="badge b-k">Customer</span></td><td>Mar 10</td><td><button class="btn btn-o btn-sm">View</button></td></tr>
-        </tbody></table>
-      </div>
-      <div style="padding:10px 12px;background:rgba(0,170,255,.05);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--dim)">
-        💡 <strong style="color:var(--t2)">On the roadmap:</strong> Proximity feature — when you're visiting an account, surface other prospects within 25 miles automatically.
-      </div>
+    <div class="view" id="view-share">
+      <div class="ph"><div class="pt">📤 Share a Module</div><div class="ps">One-tap — send a product overview by text or email</div></div>
+      <div class="mod-card"><div class="mod-name">🚪 Doors &amp; Windows</div><div class="mod-preview" id="prev-dw">Hi [Name], great meeting you!
+
+LTC distributes Lechler industrial paint — the world leader for 150+ years. For aluminum and PVC profiles, we direct-adhere with NO primer step. Water-based, ASTM certified, low VOC. Custom colors in 24-72 hours — no waste. We'll send a technician to your facility at no cost.
+
+More info: https://ltcproducts.com/en/doors-and-windows/
+Call us: 1 844 417-3030
+— TJ | Velocity Sales | 609-203-6288</div><div class="mod-actions"><button class="btn btn-p btn-sm" onclick="shareModule('text','dw')">📱 Text</button><button class="btn btn-o btn-sm" onclick="shareModule('email','dw')">✉️ Email</button><button class="btn btn-o btn-sm" onclick="copyModule('dw')">📋 Copy</button></div></div>
+      <div class="mod-card"><div class="mod-name">🪧 Advertising Signs</div><div class="mod-preview" id="prev-sign">Hi [Name], great meeting you!
+
+LTC distributes Lechler industrial paint — 10,000+ colors including full Pantone matching. Direct adhesion on aluminum, vinyl, Sintra, brass, fabric, plastic. Custom colors in 24-48 HOURS at no extra cost. UV resistant, low VOC.
+
+More info: https://ltcproducts.com/en/advertizing-signs/
+Call us: 1 844 417-3030
+— TJ | Velocity Sales | 609-203-6288</div><div class="mod-actions"><button class="btn btn-p btn-sm" onclick="shareModule('text','sign')">📱 Text</button><button class="btn btn-o btn-sm" onclick="shareModule('email','sign')">✉️ Email</button><button class="btn btn-o btn-sm" onclick="copyModule('sign')">📋 Copy</button></div></div>
+      <div class="mod-card"><div class="mod-name">🚜 Heavy Machinery</div><div class="mod-preview" id="prev-mach">Hi [Name], great meeting you!
+
+LTC distributes Lechler industrial paint — world leader for steel and heavy equipment finishing. Epoxy primer, zinc-rich, polyurethane systems. 110+ base colors, custom in 72 hours. We send a technical expert to YOUR facility to analyze your painting process at no cost.
+
+More info: https://ltcproducts.com/en/heavy-and-stationary-machinery/
+Call us: 1 844 417-3030
+— TJ | Velocity Sales | 609-203-6288</div><div class="mod-actions"><button class="btn btn-p btn-sm" onclick="shareModule('text','mach')">📱 Text</button><button class="btn btn-o btn-sm" onclick="shareModule('email','mach')">✉️ Email</button><button class="btn btn-o btn-sm" onclick="copyModule('mach')">📋 Copy</button></div></div>
+      <div class="mod-card"><div class="mod-name">🛋️ Furniture &amp; Architectural Design (IVE)</div><div class="mod-preview" id="prev-ive">Hi [Name], great meeting you!
+
+LTC distributes the Lechler IVE line — premium Italian-developed finishes for MDF, wood, and glass. The LWE color system matches any designer specification just-in-time, in exactly the quantity you need. No leftover paint. No color mismatches.
+
+More info: https://ltcproducts.com/en/architectural-design-and-furniture/
+Call us: 1 844 417-3030
+— TJ | Velocity Sales | 609-203-6288</div><div class="mod-actions"><button class="btn btn-p btn-sm" onclick="shareModule('text','ive')">📱 Text</button><button class="btn btn-o btn-sm" onclick="shareModule('email','ive')">✉️ Email</button><button class="btn btn-o btn-sm" onclick="copyModule('ive')">📋 Copy</button></div></div>
+      <div class="mod-card"><div class="mod-name">🏢 Why LTC / Lechler</div><div class="mod-preview" id="prev-ltc">Hi [Name], great connecting!
+
+LTC is the exclusive North American distributor for Lechler — world leader in industrial paint with 150+ years of expertise. ISO 9001 and ISO 14000 certified.
+
+✓ Custom colors in 24-72 hours, exact quantity, no waste
+✓ Direct adhesion on aluminum, PVC, vinyl, steel, MDF, glass
+✓ Water-based, low VOC — 5x below Canadian standard
+✓ Free on-site technical support and process analysis
+✓ I cover NJ, PA, DE, and MD personally
+
+Website: https://ltcproducts.com/en/
+Call us: 1 844 417-3030
+— TJ | Velocity Sales | 609-203-6288</div><div class="mod-actions"><button class="btn btn-p btn-sm" onclick="shareModule('text','ltc')">📱 Text</button><button class="btn btn-o btn-sm" onclick="shareModule('email','ltc')">✉️ Email</button><button class="btn btn-o btn-sm" onclick="copyModule('ltc')">📋 Copy</button></div></div>
     </div>
 
-    <!-- CONTACTS -->
-    <div class="view" id="view-contacts">
-      <div class="ph"><div class="pt">Contacts</div><div class="ps">Key people at TJ's accounts</div></div>
-      <div class="sbar"><input class="sinput" placeholder="Search contacts..."><button class="btn btn-p" onclick="showModal('new-contact')">+ Add</button></div>
-      <div class="ccard"><div class="cav">PM</div><div class="cinfo"><div class="cname">Paul Marchetti <span class="badge b-nj" style="font-size:10px;margin-left:5px">NJ</span></div><div class="crole">Plant Manager · Precision Millwork</div><div class="cdet">📞 (555) 201-4432 · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="502031253c10202235333923393f3e3d393c3c273f223b7e333f3d">[email&#160;protected]</a></div><div class="cdet">📍 123 Industrial Way, Trenton, NJ 08601 · Aluminum &amp; PVC finishes</div></div><div class="cact"><button class="btn btn-o btn-sm">📞</button><button class="btn btn-o btn-sm" onclick="showModal('log-call')">Log</button></div></div>
-      <div class="ccard"><div class="cav">SL</div><div class="cinfo"><div class="cname">Sandra Liu <span class="badge b-pa" style="font-size:10px;margin-left:5px">PA</span></div><div class="crole">Owner · Northern Sign Co.</div><div class="cdet">📞 (555) 309-8821 · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4f3c23263a0f21203d3b272a3d213c262821612c2022">[email&#160;protected]</a></div><div class="cdet">📍 456 Commerce Blvd, Philadelphia, PA 19103 · Vinyl, Aluminum, Sintra</div></div><div class="cact"><button class="btn btn-o btn-sm">📞</button><button class="btn btn-o btn-sm" onclick="showModal('log-call')">Log</button></div></div>
-      <div class="ccard"><div class="cav">RV</div><div class="cinfo"><div class="cname">Robert Vieira <span class="badge b-nj" style="font-size:10px;margin-left:5px">NJ</span></div><div class="crole">Purchasing Dir. · Valley Equipment</div><div class="cdet">📞 (555) 478-2290 · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3446425d515d46557442555858514d5145415d441a575b59">[email&#160;protected]</a></div><div class="cdet">📍 789 Equipment Dr, Edison, NJ 08817 · Steel, Metal</div></div><div class="cact"><button class="btn btn-o btn-sm">📞</button><button class="btn btn-o btn-sm" onclick="showModal('log-call')">Log</button></div></div>
-      <div class="ccard"><div class="cav">AT</div><div class="cinfo"><div class="cname">Amelia Tremblay <span class="badge b-pa" style="font-size:10px;margin-left:5px">PA</span></div><div class="crole">Head of Procurement · Maple Furniture</div><div class="cdet">📞 (555) 665-1103 · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0d6c606861646c4d606c7d61686b787f636479787f68236e6260">[email&#160;protected]</a></div><div class="cdet">📍 321 Craftsman Rd, Lancaster, PA 17601 · MDF, Wood panels</div></div><div class="cact"><button class="btn btn-o btn-sm">📞</button><button class="btn btn-o btn-sm" onclick="showModal('log-call')">Log</button></div></div>
-    </div>
-
-    <!-- PIPELINE -->
-    <div class="view" id="view-pipeline">
-      <div class="ph"><div class="pt">Pipeline</div><div class="ps">NJ · Eastern PA · DE · MD territory opportunities</div></div>
-      <div class="card">
-        <div class="pipe">
-          <div class="pstage"><div class="psl">Prospect</div><div class="psn">8</div><div class="psv">$22,400</div></div>
-          <div class="pstage"><div class="psl">Qualified</div><div class="psn">5</div><div class="psv">$31,800</div></div>
-          <div class="pstage"><div class="psl">Demo Done</div><div class="psn">4</div><div class="psv">$18,200</div></div>
-          <div class="pstage"><div class="psl">Proposal</div><div class="psn">3</div><div class="psv">$14,900</div></div>
-          <div class="pstage"><div class="psl">Won</div><div class="psn">6</div><div class="psv" style="color:var(--ok)">$48,100</div></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="ch"><div class="ct">Opportunities</div><button class="ca" onclick="showModal('new-opportunity')">+ New</button></div>
-        <table class="tbl"><thead><tr><th>Account</th><th>State</th><th>Line</th><th>Value</th><th>Stage</th><th></th></tr></thead><tbody>
-          <tr><td><strong>Precision Millwork</strong></td><td><span class="badge b-nj">NJ</span></td><td><span class="badge b-c">D&amp;W</span></td><td>$8,400</td><td><span class="badge b-g">Proposal</span></td><td><button class="btn btn-o btn-sm" onclick="toast('Updated!')">Edit</button></td></tr>
-          <tr><td><strong>EastCoast Extrusions</strong></td><td><span class="badge b-nj">NJ</span></td><td><span class="badge b-c">D&amp;W</span></td><td>$200K/yr</td><td><span class="badge b-hot">🔥 Intel Lead</span></td><td><button class="btn btn-o btn-sm" onclick="toast('Updated!')">Edit</button></td></tr>
-          <tr><td><strong>Northern Sign Co.</strong></td><td><span class="badge b-pa">PA</span></td><td><span class="badge b-b">Signs</span></td><td>$5,200</td><td><span class="badge b-c">Demo Sched.</span></td><td><button class="btn btn-o btn-sm" onclick="toast('Updated!')">Edit</button></td></tr>
-          <tr><td><strong>Valley Equipment</strong></td><td><span class="badge b-nj">NJ</span></td><td><span class="badge b-dim">Machinery</span></td><td>$14,900</td><td><span class="badge b-c">Qualified</span></td><td><button class="btn btn-o btn-sm" onclick="toast('Updated!')">Edit</button></td></tr>
-          <tr><td><strong>Maple Furniture</strong></td><td><span class="badge b-pa">PA</span></td><td><span class="badge b-k">IVE</span></td><td>$3,700</td><td><span class="badge b-k">Won</span></td><td><button class="btn btn-o btn-sm" onclick="toast('Updated!')">Edit</button></td></tr>
-        </tbody></table>
-      </div>
-    </div>
-
-    <!-- KNOWLEDGE BASE -->
     <div class="view" id="view-knowledge">
       <div class="ph"><div class="pt">Knowledge Base</div><div class="ps">Pitches, objection handlers, substrate &amp; application guides</div></div>
       <div class="kitem" onclick="showModal('kb-pitch')"><div class="ktit">🏢 TJ's 30-Second Pitch</div><div class="kex">Quick company overview — LTC, Lechler, what makes us different...</div><div class="kmeta"><span class="badge b-b">Pitch</span></div></div>
-      <div class="kitem" onclick="showModal('kb-sub-pitch')"><div class="ktit">🔬 Substrate-Based Pitch Guide</div><div class="kex">Aluminum → D&amp;W. PVC → D&amp;W. Steel → Machinery. MDF → IVE. Vinyl → Signs. Glass → IVE Vetrive...</div><div class="kmeta"><span class="badge b-g">Substrates</span></div></div>
-      <div class="kitem" onclick="showModal('kb-app-methods')"><div class="ktit">🛠️ Application Methods by Substrate</div><div class="kex">HVLP, airless, curtain coat, electrostatic, roller, immersion — which works on which material and what to ask the customer...</div><div class="kmeta"><span class="badge b-c">Application</span></div></div>
-      <div class="kitem" onclick="showModal('kb-5q')"><div class="ktit">❓ 5 Questions to Ask Any New Customer</div><div class="kex">Qualify any prospect in under 3 minutes. Maps directly to product line and application method...</div><div class="kmeta"><span class="badge b-k">Qualifying</span></div></div>
-      <div class="kitem" onclick="showModal('kb-objections')"><div class="ktit">💬 Objections &amp; Responses</div><div class="kex">"We have a supplier." / "Price is higher." / "Need to test first." / "Never heard of Lechler."...</div><div class="kmeta"><span class="badge b-g">Objections</span></div></div>
-      <div class="kitem" onclick="showModal('kb-colorimetry')"><div class="ktit">🔬 Colorimetry System — Key Differentiator</div><div class="kex">Any color, exact quantity, on demand. Unique viscosity control. No leftover paint...</div><div class="kmeta"><span class="badge b-c">Technology</span></div></div>
-      <div class="kitem" onclick="showModal('kb-pricing')"><div class="ktit">💰 Pricing &amp; TCO Conversations</div><div class="kex">Total Cost of Ownership arguments — no primer step, zero waste, free tech support...</div><div class="kmeta"><span class="badge b-g">Pricing</span></div></div>
+      <div class="kitem" onclick="showModal('kb-sub-pitch')"><div class="ktit">🔬 Substrate-Based Pitch Guide</div><div class="kex">Aluminum → D&amp;W. Steel → Machinery. MDF → IVE. Vinyl → Signs...</div><div class="kmeta"><span class="badge b-g">Substrates</span></div></div>
+      <div class="kitem" onclick="showModal('kb-app-methods')"><div class="ktit">🛠️ Application Methods by Substrate</div><div class="kex">HVLP, airless, curtain coat, electrostatic, roller — which works on which material...</div><div class="kmeta"><span class="badge b-c">Application</span></div></div>
+      <div class="kitem" onclick="showModal('kb-5q')"><div class="ktit">❓ 5 Questions to Ask Any New Customer</div><div class="kex">Qualify any prospect in under 3 minutes...</div><div class="kmeta"><span class="badge b-k">Qualifying</span></div></div>
+      <div class="kitem" onclick="showModal('kb-objections')"><div class="ktit">💬 Objections &amp; Responses</div><div class="kex">"We have a supplier." / "Price is higher." / "Need to test first."...</div><div class="kmeta"><span class="badge b-g">Objections</span></div></div>
+      <div class="kitem" onclick="showModal('kb-colorimetry')"><div class="ktit">🔬 Colorimetry System — Key Differentiator</div><div class="kex">Any color, exact quantity, on demand...</div><div class="kmeta"><span class="badge b-c">Technology</span></div></div>
+      <div class="kitem" onclick="showModal('kb-pricing')"><div class="ktit">💰 Pricing &amp; TCO Conversations</div><div class="kex">Total Cost of Ownership arguments...</div><div class="kmeta"><span class="badge b-g">Pricing</span></div></div>
     </div>
 
-    <!-- RESOURCES -->
     <div class="view" id="view-resources">
       <div class="ph"><div class="pt">LTC Resources</div><div class="ps">Direct lines and links</div></div>
       <div class="g2">
-        <div class="card">
-          <div class="ct" style="margin-bottom:11px">🏢 LTC HQ</div>
+        <div class="card"><div class="ct" style="margin-bottom:11px">🏢 LTC HQ</div>
           <div style="font-size:13px;color:var(--t2);display:flex;flex-direction:column;gap:9px">
             <div><strong style="color:var(--t1)">Toll-Free</strong><br><a href="tel:18444173030" style="color:var(--accent);text-decoration:none;font-weight:600">1 844 417-3030</a></div>
-            <div><strong style="color:var(--t1)">Quebec HQ</strong><br><a href="tel:4184173030" style="color:var(--accent);text-decoration:none">418 417-3030</a><br><span style="font-size:11px">91 Marcel-Dumont, Saint-Lambert de Lauzon, QC</span></div>
-            <div><strong style="color:var(--t1)">Florida</strong><br><a href="tel:7542232625" style="color:var(--accent);text-decoration:none">754-223-2625</a><br><span style="font-size:11px">6741 W Sunrise Blvd A35, Plantation, FL</span></div>
-            <div><a href="/cdn-cgi/l/email-protection#8ce5e2eae3cce0f8effca2efed" style="color:var(--accent);text-decoration:none"><span class="__cf_email__" data-cfemail="31585f575e715d4552411f5250">[email&#160;protected]</span></a> · Mon–Fri 8AM–5PM</div>
+            <div><strong style="color:var(--t1)">Quebec HQ</strong><br><a href="tel:4184173030" style="color:var(--accent);text-decoration:none">418 417-3030</a></div>
+            <div><strong style="color:var(--t1)">Florida</strong><br><a href="tel:7542232625" style="color:var(--accent);text-decoration:none">754-223-2625</a></div>
+            <div><a href="mailto:info@ltcp.ca" style="color:var(--accent);text-decoration:none">info@ltcp.ca</a></div>
           </div>
         </div>
-        <div class="card">
-          <div class="ct" style="margin-bottom:11px">🔗 Quick Links</div>
+        <div class="card"><div class="ct" style="margin-bottom:11px">🔗 Quick Links</div>
           <div style="display:flex;flex-direction:column;gap:6px">
             <a href="https://ltcproducts.com/en/" target="_blank" style="color:var(--accent);font-size:13px;text-decoration:none;padding:7px 10px;background:var(--card2);border-radius:6px;border:1px solid var(--border);display:block">🌐 LTC Website</a>
             <a href="https://ltcproducts.com/en/products/" target="_blank" style="color:var(--accent);font-size:13px;text-decoration:none;padding:7px 10px;background:var(--card2);border-radius:6px;border:1px solid var(--border);display:block">📦 All Products</a>
@@ -903,56 +516,58 @@ Call us: 1 844 417-3030
       </div>
     </div>
 
-    <!-- ROADMAP -->
     <div class="view" id="view-roadmap">
-      <div class="ph"><div class="pt">🗺️ Project Roadmap</div><div class="ps">What's built, what's next, and what we're saving for later</div></div>
+      <div class="ph"><div class="pt">🗺️ Project Roadmap</div><div class="ps">Admin only — project status and priorities</div></div>
       <div class="g3">
         <div class="road-col">
           <div class="road-col-title doing">🔥 Built &amp; Live</div>
           <div class="road-item done"><div class="road-dot doing"></div>Dashboard &amp; navigation</div>
-          <div class="road-item done"><div class="road-dot doing"></div>Intel Hub with voice capture &amp; AI analysis</div>
-          <div class="road-item done"><div class="road-dot doing"></div>Accounts, Contacts, Pipeline</div>
-          <div class="road-item done"><div class="road-dot doing"></div>Knowledge Base (pitches, substrates, application methods, 5 qualifying questions)</div>
-          <div class="road-item done"><div class="road-dot doing"></div>Prospect Finder — Signs, Machinery, IVE, D&amp;W</div>
-          <div class="road-item done"><div class="road-dot doing"></div>Shareable Modules (text + email)</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Intel Hub with voice &amp; AI</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Customers, Contacts, Pipeline</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Knowledge Base</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Prospect Finder — all product lines</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Shareable Modules</div>
           <div class="road-item done"><div class="road-dot doing"></div>Territory: NJ, Eastern PA, DE, MD</div>
-          <div class="road-item done"><div class="road-dot doing"></div>This Roadmap tab</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Live on Vercel</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Supabase database connected</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Login with Velocity branding</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Admin vs TJ roles</div>
+          <div class="road-item done"><div class="road-dot doing"></div>Data saves permanently</div>
         </div>
         <div class="road-col">
-          <div class="road-col-title next">⚡ Up Next</div>
-          <div class="road-item"><div class="road-dot next"></div>Convert to mobile app (PWA) — TJ installs on iPhone like a real app</div>
-          <div class="road-item"><div class="road-dot next"></div>Host on Netlify — permanent URL, share with team</div>
-          <div class="road-item"><div class="road-dot next"></div>Two-role split — inside person (desktop) vs TJ (mobile)</div>
-          <div class="road-item"><div class="road-dot next"></div>Cloud data sync — accounts &amp; intel save permanently</div>
-          <div class="road-item"><div class="road-dot next"></div>Proximity feature — surface prospects within 25 miles of a planned visit</div>
-          <div class="road-item"><div class="road-dot next"></div>Admin Clean-Up — duplicate contact/account review</div>
+          <div class="road-col-title next">⚡ Priority 2 — Next</div>
+          <div class="road-item"><div class="road-dot next"></div>Admin pushes leads/tasks to TJ</div>
+          <div class="road-item"><div class="road-dot next"></div>TJ rates and approves leads</div>
+          <div class="road-item"><div class="road-dot next"></div>Visual notifications for TJ</div>
+          <div class="road-item"><div class="road-dot next"></div>Two-way workflow</div>
+          <div class="road-item"><div class="road-dot next"></div>Real-time sync</div>
+          <div class="road-item"><div class="road-dot next"></div>PWA — TJ installs on iPhone</div>
         </div>
         <div class="road-col">
-          <div class="road-col-title future">🗺️ Future Ideas</div>
-          <div class="road-item"><div class="road-dot future"></div>LTC literature — add when provided by LTC</div>
-          <div class="road-item"><div class="road-dot future"></div>Update shareable modules with hosted URLs (post-Netlify)</div>
-          <div class="road-item"><div class="road-dot future"></div>Expand territory — CT, MA, further NE</div>
+          <div class="road-col-title future">🗺️ Priority 3 &amp; Future</div>
+          <div class="road-item"><div class="road-dot future"></div>Proximity feature — 25 miles</div>
+          <div class="road-item"><div class="road-dot future"></div>ERD vendor section</div>
+          <div class="road-item"><div class="road-dot future"></div>Follow-up reminders</div>
           <div class="road-item"><div class="road-dot future"></div>Commission tracking</div>
-          <div class="road-item"><div class="road-dot future"></div>Quote builder</div>
-          <div class="road-item"><div class="road-dot future"></div>Follow-up reminder / scheduling engine</div>
-          <div class="road-item"><div class="road-dot future"></div>Trade show calendar — NE region events</div>
-          <div class="road-item"><div class="road-dot future"></div>Training modules</div>
-          <div class="road-item"><div class="road-dot future"></div>Data export / import</div>
+          <div class="road-item"><div class="road-dot future"></div>Expand territory — CT, MA</div>
+          <div class="road-item"><div class="road-dot future"></div>Admin cleanup</div>
+          <div class="road-item"><div class="road-dot future"></div>LTC literature when provided</div>
+          <div class="road-item"><div class="road-dot future"></div>Quote builder (TBC)</div>
+          <div class="road-item"><div class="road-dot future"></div>Trade show calendar (TBC)</div>
         </div>
       </div>
       <div class="road-note">
-        <div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:700;">📝 Notes &amp; Ideas</div>
-        <textarea id="road-notes" placeholder="Add ideas here as they come up — these won't be lost when the dashboard updates..."></textarea>
+        <div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:700;">📝 Admin Notes</div>
+        <textarea id="road-notes" placeholder="Add ideas here as they come up..."></textarea>
         <div style="margin-top:8px"><button class="btn btn-g btn-sm" onclick="saveNotes()">Save Notes</button></div>
       </div>
     </div>
 
   </main>
 </div>
+</div>
+</div>
 
-</div><!-- end main-app -->
-
-<!-- BOTTOM NAV -->
 <div class="bnav" id="bottom-nav" style="display:none;">
   <div class="bnav-i">
     <button class="nbtn on" id="bn-dashboard" onclick="nav('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Home</button>
@@ -964,21 +579,19 @@ Call us: 1 844 417-3030
 </div>
 
 <div class="toast" id="toast-el"></div>
-
 <div class="moverlay" id="moverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal"><div class="mhead"><div class="mtit" id="mtit"></div><button class="mclose" onclick="closeModal()">✕</button></div><div id="mbody"></div></div>
-</div>
-
-<script>
-const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-let currentUser = null, currentUserRole = null;
+</div><script>
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+let currentUserRole = null;
 
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
   errEl.style.display = 'none';
-  const { data, error } = await _sb.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) { errEl.style.display = 'block'; return; }
   currentUser = data.user;
   await loadUserRole();
@@ -986,12 +599,13 @@ async function doLogin() {
 }
 
 async function loadUserRole() {
-  const { data } = await _sb.from('users').select('*').eq('email', currentUser.email).single();
+  const { data } = await supabase.from('users').select('*').eq('email', currentUser.email).single();
   if (data) {
     currentUserRole = data.role;
-    const up=document.getElementById('user-pill'); if(up) up.textContent='👤 '+data.name;
+    document.getElementById('user-pill').textContent = '👤 ' + data.name;
     const h = new Date().getHours();
-    const dg=document.getElementById('dash-greeting'); if(dg) dg.textContent = 'Good ' + (h<12?'Morning':h<17?'Afternoon':'Evening') + ', ' + data.name + '! 👋';
+    const tod = h < 12 ? 'Morning' : h < 17 ? 'Afternoon' : 'Evening';
+    document.getElementById('dash-greeting').textContent = 'Good ' + tod + ', ' + data.name + '! 👋';
     if (data.role === 'admin') {
       document.getElementById('admin-section').style.display = 'block';
       document.getElementById('sn-roadmap').style.display = 'flex';
@@ -1000,7 +614,7 @@ async function loadUserRole() {
 }
 
 async function doLogout() {
-  await _sb.auth.signOut();
+  await supabase.auth.signOut();
   document.getElementById('main-app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('bottom-nav').style.display = 'none';
@@ -1012,10 +626,15 @@ function showApp() {
   document.getElementById('main-app').style.display = 'block';
   document.getElementById('bottom-nav').style.display = 'block';
   document.getElementById('today-sub').textContent = 'NJ · Eastern PA · DE · MD · ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-  loadDashboardCounts(); loadCustomers(); loadContacts(); loadPipeline(); loadIntel(); loadNotes();
+  loadDashboardCounts();
+  loadCustomers();
+  loadContacts();
+  loadPipeline();
+  loadIntel();
+  loadNotes();
 }
 
-_sb.auth.getSession().then(({ data: { session } }) => {
+supabase.auth.getSession().then(({ data: { session } }) => {
   if (session) { currentUser = session.user; loadUserRole().then(() => showApp()); }
 });
 
@@ -1040,10 +659,10 @@ function closeModal(){ document.getElementById('moverlay').classList.remove('on'
 
 async function loadDashboardCounts() {
   const [c1,c2,c3,c4] = await Promise.all([
-    _sb.from('customers').select('*',{count:'exact',head:true}),
-    _sb.from('pipeline').select('*',{count:'exact',head:true}),
-    _sb.from('intel').select('*',{count:'exact',head:true}),
-    _sb.from('contacts').select('*',{count:'exact',head:true})
+    supabase.from('customers').select('*',{count:'exact',head:true}),
+    supabase.from('pipeline').select('*',{count:'exact',head:true}),
+    supabase.from('intel').select('*',{count:'exact',head:true}),
+    supabase.from('contacts').select('*',{count:'exact',head:true})
   ]);
   document.getElementById('dash-cust-cnt').textContent = c1.count||0;
   document.getElementById('dash-pipe-cnt').textContent = c2.count||0;
@@ -1053,11 +672,11 @@ async function loadDashboardCounts() {
 
 let allCustomers=[];
 async function loadCustomers(){
-  const {data}=await _sb.from('customers').select('*').order('created_at',{ascending:false});
+  const {data}=await supabase.from('customers').select('*').order('created_at',{ascending:false});
   allCustomers=data||[]; renderCustomers(allCustomers);
 }
 function renderCustomers(customers){
-  const el=document.getElementById('customers-table'); if(!el) return;
+  const el=document.getElementById('customers-table');
   if(!customers.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">🏭</div><div>No customers yet. Add your first one!</div></div>';return;}
   el.innerHTML=`<table class="tbl"><thead><tr><th>Company</th><th>State</th><th>Product Line</th><th>Status</th><th></th></tr></thead><tbody>${customers.map(c=>`<tr><td><strong>${c.name}</strong></td><td>${c.state||'—'}</td><td>${c.product_line||'—'}</td><td><span class="badge b-${c.status==='customer'?'k':c.status==='active'?'g':'c'}">${c.status||'prospect'}</span></td><td><button class="btn btn-o btn-sm" onclick="viewCustomer('${c.id}')">View</button></td></tr>`).join('')}</tbody></table>`;
 }
@@ -1073,80 +692,83 @@ function viewCustomer(id){
 }
 async function deleteCustomer(id){
   if(!confirm('Delete this customer?')) return;
-  await _sb.from('customers').delete().eq('id',id);
+  await supabase.from('customers').delete().eq('id',id);
   toast('Customer deleted'); closeModal(); loadCustomers(); loadDashboardCounts();
 }
 async function saveCustomer(){
   const name=document.getElementById('c-name').value.trim();
   if(!name){toast('Company name required','var(--err)');return;}
-  await _sb.from('customers').insert({name,industry:document.getElementById('c-industry').value,street:document.getElementById('c-street').value,city:document.getElementById('c-city').value,state:document.getElementById('c-state').value,zip:document.getElementById('c-zip').value,product_line:document.getElementById('c-line').value,status:document.getElementById('c-status').value,notes:document.getElementById('c-notes').value});
+  await supabase.from('customers').insert({name,industry:document.getElementById('c-industry').value,street:document.getElementById('c-street').value,city:document.getElementById('c-city').value,state:document.getElementById('c-state').value,zip:document.getElementById('c-zip').value,product_line:document.getElementById('c-line').value,status:document.getElementById('c-status').value,notes:document.getElementById('c-notes').value});
   toast('Customer added! ✅'); closeModal(); loadCustomers(); loadDashboardCounts();
 }
 
 let allContacts=[];
 async function loadContacts(){
-  const {data}=await _sb.from('contacts').select('*').order('created_at',{ascending:false});
+  const {data}=await supabase.from('contacts').select('*').order('created_at',{ascending:false});
   allContacts=data||[]; renderContacts(allContacts);
 }
 function renderContacts(contacts){
-  const el=document.getElementById('contacts-list'); if(!el) return;
+  const el=document.getElementById('contacts-list');
   if(!contacts.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">👤</div><div>No contacts yet.</div></div>';return;}
   el.innerHTML=contacts.map(c=>`<div class="ccard"><div class="cav">${(c.first_name[0]||'')+(c.last_name[0]||'')}</div><div class="cinfo"><div class="cname">${c.first_name} ${c.last_name}</div><div class="crole">${c.title||''}</div><div class="cdet">${c.phone?'📞 '+c.phone:''} ${c.email?'· '+c.email:''}</div><div class="cdet">${[c.street,c.city,c.state,c.zip].filter(Boolean).join(', ')||''}</div></div><div class="cact">${c.phone?`<a href="tel:${c.phone}" class="btn btn-o btn-sm">📞</a>`:''}<button class="btn btn-o btn-sm" onclick="deleteContact('${c.id}')">🗑️</button></div></div>`).join('');
 }
 async function deleteContact(id){
   if(!confirm('Delete this contact?')) return;
-  await _sb.from('contacts').delete().eq('id',id);
+  await supabase.from('contacts').delete().eq('id',id);
   toast('Contact deleted'); loadContacts(); loadDashboardCounts();
 }
 async function saveContact(){
   const first=document.getElementById('ct-first').value.trim();
   const last=document.getElementById('ct-last').value.trim();
   if(!first||!last){toast('Name required','var(--err)');return;}
-  await _sb.from('contacts').insert({first_name:first,last_name:last,title:document.getElementById('ct-title').value,phone:document.getElementById('ct-phone').value,email:document.getElementById('ct-email').value,street:document.getElementById('ct-street').value,city:document.getElementById('ct-city').value,state:document.getElementById('ct-state').value,zip:document.getElementById('ct-zip').value,notes:document.getElementById('ct-notes').value});
+  await supabase.from('contacts').insert({first_name:first,last_name:last,title:document.getElementById('ct-title').value,phone:document.getElementById('ct-phone').value,email:document.getElementById('ct-email').value,street:document.getElementById('ct-street').value,city:document.getElementById('ct-city').value,state:document.getElementById('ct-state').value,zip:document.getElementById('ct-zip').value,notes:document.getElementById('ct-notes').value});
   toast('Contact added! ✅'); closeModal(); loadContacts(); loadDashboardCounts();
 }
 
 let allPipeline=[];
 async function loadPipeline(){
-  const {data}=await _sb.from('pipeline').select('*').order('created_at',{ascending:false});
+  const {data}=await supabase.from('pipeline').select('*').order('created_at',{ascending:false});
   allPipeline=data||[]; renderPipeline(allPipeline);
 }
 function renderPipeline(opps){
   ['prospect','qualified','demo','proposal','won'].forEach(s=>{const el=document.getElementById('pipe-'+s);if(el)el.textContent=opps.filter(o=>o.stage===s).length;});
-  const el=document.getElementById('pipeline-list'); if(!el) return;
+  const el=document.getElementById('pipeline-list');
   if(!opps.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">💼</div><div>No opportunities yet.</div></div>';return;}
   el.innerHTML=`<table class="tbl"><thead><tr><th>Product Line</th><th>Value</th><th>Stage</th><th></th></tr></thead><tbody>${opps.map(o=>`<tr><td>${o.product_line||'—'}</td><td>${o.value?'$'+Number(o.value).toLocaleString():'—'}</td><td><span class="badge b-c">${o.stage||'prospect'}</span></td><td><button class="btn btn-o btn-sm" onclick="deletePipeline('${o.id}')">🗑️</button></td></tr>`).join('')}</tbody></table>`;
 }
 async function deletePipeline(id){
-  if(!confirm('Delete?')) return;
-  await _sb.from('pipeline').delete().eq('id',id);
+  if(!confirm('Delete this opportunity?')) return;
+  await supabase.from('pipeline').delete().eq('id',id);
   toast('Deleted'); loadPipeline(); loadDashboardCounts();
 }
 async function saveOpportunity(){
-  await _sb.from('pipeline').insert({product_line:document.getElementById('op-line').value,value:document.getElementById('op-value').value||null,stage:document.getElementById('op-stage').value,notes:document.getElementById('op-notes').value});
+  await supabase.from('pipeline').insert({product_line:document.getElementById('op-line').value,value:document.getElementById('op-value').value||null,stage:document.getElementById('op-stage').value,notes:document.getElementById('op-notes').value});
   toast('Opportunity added! ✅'); closeModal(); loadPipeline(); loadDashboardCounts();
 }
 
 let INTEL=[];
 async function loadIntel(){
-  const {data}=await _sb.from('intel').select('*').order('created_at',{ascending:false});
+  const {data}=await supabase.from('intel').select('*').order('created_at',{ascending:false});
   INTEL=data||[]; renderIntel();
 }
 function renderIntel(){
   const hot=INTEL.filter(e=>e.priority==='hot').length;
   document.getElementById('hotbadge').textContent=hot+' HOT';
-  const feed=document.getElementById('intel-feed'); if(!feed) return;
-  if(!INTEL.length){feed.innerHTML='<div class="empty-state"><div class="empty-state-icon">🕵️</div><div>No intel yet.</div></div>';renderDashHot();return;}
-  feed.innerHTML=INTEL.map(e=>`<div class="icard ${e.priority||'warm'}"><div class="ich"><div><div class="ico">${e.company}</div><div class="icm"><span>${e.state||''}</span><span>·</span><span>${new Date(e.created_at).toLocaleDateString()}</span>${e.estimated_value?`<span>·</span><span style="color:var(--gold);font-weight:600">${e.estimated_value}</span>`:''}</div></div><div class="ipri ${e.priority||'warm'}">${e.priority==='hot'?'🔥 HOT':e.priority==='warm'?'⚡ WARM':'✅ COOL'}</div></div><div class="icb">${e.note||''}</div>${e.ai_suggestion?`<div style="background:rgba(255,77,77,.06);border:1px solid rgba(255,77,77,.2);border-radius:7px;padding:10px;margin-bottom:9px;"><div style="font-size:11px;color:var(--hot);font-weight:700;">🤖 AI Action</div><div style="font-size:13px;color:var(--gold);font-weight:600;">${e.ai_suggestion.act||''}</div><div style="font-size:12px;color:var(--t2);">${e.ai_suggestion.why||''}</div></div>`:''}<div class="ica"><button class="btn btn-o btn-sm" onclick="deleteIntel('${e.id}')">🗑️ Remove</button></div></div>`).join('');
-  renderDashHot();
+  document.getElementById('dash-intel-cnt').textContent=INTEL.length;
+  const feed=document.getElementById('intel-feed');
+  if(!INTEL.length){feed.innerHTML='<div class="empty-state"><div class="empty-state-icon">🕵️</div><div>No intel yet.</div></div>';renderHotTopics();return;}
+  feed.innerHTML=INTEL.map(e=>`<div class="icard ${e.priority||'warm'}"><div class="ich"><div><div class="ico">${e.company}</div><div class="icm"><span>${e.state||''}</span><span>·</span><span>${e.source||''}</span><span>·</span><span>${new Date(e.created_at).toLocaleDateString()}</span>${e.estimated_value?`<span>·</span><span style="color:var(--gold);font-weight:600">${e.estimated_value}</span>`:''}</div></div><div class="ipri ${e.priority||'warm'}">${e.priority==='hot'?'🔥 HOT':e.priority==='warm'?'⚡ WARM':'✅ COOL'}</div></div><div class="icb">${e.note||''}</div>${e.ai_suggestion?`<div style="background:rgba(255,77,77,.06);border:1px solid rgba(255,77,77,.2);border-radius:7px;padding:10px;margin-bottom:9px;"><div style="font-size:11px;text-transform:uppercase;color:var(--hot);margin-bottom:3px;font-weight:700;">🤖 AI Suggested Action</div><div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:3px;">${e.ai_suggestion.act||''}</div><div style="font-size:12px;color:var(--t2);">${e.ai_suggestion.why||''}</div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;">${(e.ai_suggestion.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`:''}<div class="ica"><button class="btn btn-o btn-sm" onclick="deleteIntel('${e.id}')">🗑️ Remove</button></div></div>`).join('');
+  renderHotTopics();
 }
-function renderDashHot(){
-  const dashHot=document.getElementById('dash-hot');
-  const hotTopics=document.getElementById('hot-topics');
-  const hotItems=INTEL.filter(e=>e.priority==='hot'||e.priority==='warm').slice(0,2);
-  if(dashHot){dashHot.innerHTML=!hotItems.length?'<div style="font-size:12px;color:var(--dim)">No hot intel yet!</div>':hotItems.map(e=>`<div style="padding:8px 0;border-bottom:1px solid rgba(255,77,77,.1);display:flex;gap:10px;"><div>${e.priority==='hot'?'🔥':'⚡'}</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t1)">${e.company} ${e.estimated_value?`<span style="color:var(--gold);font-size:12px">${e.estimated_value}</span>`:''}</div>${e.ai_suggestion?`<div style="font-size:12px;color:var(--gold)">${e.ai_suggestion.act}</div>`:''}</div><button class="btn btn-h btn-sm" onclick="nav('intel')">View</button></div>`).join('');}
+function renderHotTopics(){
+  const c=document.getElementById('hot-topics');
   const entries=INTEL.filter(e=>e.ai_suggestion).slice(0,3);
-  if(hotTopics){hotTopics.innerHTML=!entries.length?'<div style="font-size:13px;color:var(--dim);padding:10px;text-align:center">Add intel to get AI suggestions.</div>':entries.map(e=>`<div class="aisugg"><div style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:3px">${e.priority==='hot'?'🔥 ':'⚡ '}${e.company}</div><div style="font-size:13px;color:var(--gold);font-weight:600;">${e.ai_suggestion.act||''}</div><div style="font-size:12px;color:var(--t2)">${e.ai_suggestion.why||''}</div></div>`).join('');}
+  if(!entries.length){c.innerHTML='<div style="font-size:13px;color:var(--dim);padding:10px;text-align:center">Add intel to get AI-powered suggestions.</div>';return;}
+  c.innerHTML=entries.map(e=>`<div class="aisugg"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:700;color:var(--t1);margin-bottom:3px">${e.priority==='hot'?'🔥 ':'⚡ '}${e.company}</div><div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:3px">${e.ai_suggestion.act||''}</div><div style="font-size:12px;color:var(--t2)">${e.ai_suggestion.why||''}</div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">${(e.ai_suggestion.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`).join('');
+  const dashHot=document.getElementById('dash-hot');
+  const hotItems=INTEL.filter(e=>e.priority==='hot'||e.priority==='warm').slice(0,2);
+  if(!hotItems.length){dashHot.innerHTML='<div style="font-size:12px;color:var(--dim)">No hot intel yet!</div>';return;}
+  dashHot.innerHTML=hotItems.map(e=>`<div style="padding:8px 0;border-bottom:1px solid rgba(255,77,77,.1);display:flex;align-items:flex-start;gap:10px;"><div style="font-size:15px">${e.priority==='hot'?'🔥':'⚡'}</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t1)">${e.company} ${e.estimated_value?`<span style="color:var(--gold);font-size:12px">${e.estimated_value}</span>`:''}</div>${e.ai_suggestion?`<div style="font-size:12px;color:var(--gold)">${e.ai_suggestion.act}</div>`:''}</div><button class="btn btn-h btn-sm" onclick="nav('intel')">View</button></div>`).join('');
 }
 async function addIntel(){
   const co=document.getElementById('i-co').value.trim();
@@ -1156,32 +778,47 @@ async function addIntel(){
   const entry={company:co,state:document.getElementById('i-st').value,source:document.getElementById('i-src').value,context:document.getElementById('i-ctx').value,note,estimated_value:document.getElementById('i-val').value.trim(),priority:'warm',ai_suggestion:null};
   const aiResult=await analyzeIntel(entry);
   entry.priority=aiResult.priority||'warm';
-  entry.ai_suggestion={act:aiResult.action||'Follow up with '+co,why:aiResult.reason||'Review for LTC fit.',tags:aiResult.tags||['Needs Review']};
-  await _sb.from('intel').insert(entry);
+  entry.ai_suggestion={act:aiResult.action||'Follow up with '+co,why:aiResult.reason||'Review intel for LTC fit.',tags:aiResult.tags||['Needs Review']};
+  await supabase.from('intel').insert(entry);
   clearIntelForm();
-  toast('✅ Saved! '+entry.priority.toUpperCase(),'var(--hot)');
+  toast('✅ Intel saved! Priority: '+entry.priority.toUpperCase(),'var(--hot)');
   loadIntel(); loadDashboardCounts();
 }
-async function deleteIntel(id){await _sb.from('intel').delete().eq('id',id);toast('Removed');loadIntel();loadDashboardCounts();}
-async function clearAllIntel(){if(!confirm('Clear all intel?'))return;await _sb.from('intel').delete().neq('id','00000000-0000-0000-0000-000000000000');toast('Cleared');loadIntel();loadDashboardCounts();}
-function clearIntelForm(){['i-co','i-note','i-val'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const s=document.getElementById('i-st');if(s)s.value='';}
-async function regenSugg(){toast('Re-analyzing...','var(--hot)');await loadIntel();toast('Updated!','var(--ok)');}
+async function deleteIntel(id){
+  await supabase.from('intel').delete().eq('id',id);
+  toast('Intel removed'); loadIntel(); loadDashboardCounts();
+}
+async function clearAllIntel(){
+  if(!confirm('Clear all intel?')) return;
+  await supabase.from('intel').delete().neq('id','00000000-0000-0000-0000-000000000000');
+  toast('Cleared'); loadIntel(); loadDashboardCounts();
+}
+function clearIntelForm(){
+  ['i-co','i-note','i-val'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const s=document.getElementById('i-st');if(s)s.value='';
+}
+async function regenSugg(){toast('Re-analyzing...','var(--hot)');await loadIntel();toast('✅ Updated!','var(--ok)');}
 async function analyzeIntel(entry){
-  const p=`Sales AI for LTC rep TJ (NJ,PA,DE,MD). Lines: D&W(aluminum,PVC), Machinery(steel), Signs(10k colors), IVE(MDF,wood,glass). Intel: Company=${entry.company}, State=${entry.state}, Note=${entry.note}, Value=${entry.estimated_value||'unknown'}. JSON only: {"priority":"hot|warm|cool","action":"specific next action","reason":"why LTC fits","tags":["tag1","tag2"]}`;
-  try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:250,messages:[{role:'user',content:p}]})});const d=await r.json();const txt=(d.content||[]).map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();return JSON.parse(txt);}
-  catch(e){return {priority:'warm',action:'Follow up with '+entry.company,reason:'Review manually.',tags:['Needs Review']};}
+  const p=`You are a sales AI for TJ, rep for LTC Products (exclusive North American Lechler industrial paint distributor, territory: NJ, Eastern PA, DE, MD). LTC lines: Doors & Windows (aluminum,PVC,vinyl — direct adhesion, ASTM certified), Heavy Machinery (steel,metal — epoxy/zinc/PU), Advertising Signs (10k+ colors, aluminum,vinyl,Sintra — 24-48hr color dev), IVE/Arch Design (MDF,wood,glass — Italian finishes). Intel: Company=${entry.company}, State=${entry.state}, Note=${entry.note}, Value=${entry.estimated_value||'unknown'}. Respond ONLY valid JSON: {"priority":"hot|warm|cool","action":"one specific action sentence","reason":"2-3 sentences why LTC solves their problem","tags":["tag1","tag2","tag3"]}`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:p}]})});
+    const d=await r.json();
+    const txt=(d.content||[]).map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();
+    return JSON.parse(txt);
+  }catch(e){return {priority:'warm',action:'Follow up with '+entry.company,reason:'AI unavailable — review manually.',tags:['Needs Review']};}
 }
 
 let REC=null,recOn=false,recTimer=null,recSecs=0,recText='';
 function toggleRec(){recOn?stopRec():startRec();}
 function startRec(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){document.getElementById('vstatus').textContent='Voice not supported';return;}
-  REC=new SR();REC.continuous=true;REC.interimResults=true;REC.lang='en-US';recText='';recOn=true;
+  if(!SR){document.getElementById('vstatus').textContent='Voice not supported — use the form below';return;}
+  REC=new SR();REC.continuous=true;REC.interimResults=true;REC.lang='en-US';
+  recText='';recOn=true;
   document.getElementById('vbtn').classList.add('rec');document.getElementById('vbtn').textContent='⏹️';
-  document.getElementById('vstatus').textContent='Recording...';document.getElementById('vstatus').className='vstatus rt';
-  document.getElementById('vtimer').classList.add('on');recSecs=0;
-  recTimer=setInterval(()=>{recSecs++;const m=Math.floor(recSecs/60),s=recSecs%60;document.getElementById('vtimer').textContent=m+':'+(s<10?'0':'')+s;},1000);
+  document.getElementById('vstatus').textContent='Recording... speak now';document.getElementById('vstatus').className='vstatus rt';
+  document.getElementById('vtimer').classList.add('on');
+  recSecs=0;recTimer=setInterval(()=>{recSecs++;const m=Math.floor(recSecs/60),s=recSecs%60;document.getElementById('vtimer').textContent=m+':'+(s<10?'0':'')+s;},1000);
   REC.onresult=ev=>{let fi='',in_='';for(let i=ev.resultIndex;i<ev.results.length;i++){if(ev.results[i].isFinal)fi+=ev.results[i][0].transcript+' ';else in_+=ev.results[i][0].transcript;}recText+=fi;document.getElementById('ttext').textContent=recText+in_;document.getElementById('tbox').classList.add('on');};
   REC.onerror=()=>stopRec();REC.onend=()=>{if(recOn)REC.start();};REC.start();
 }
@@ -1190,23 +827,327 @@ function stopRec(){
   document.getElementById('vbtn').classList.remove('rec');document.getElementById('vbtn').textContent='🎙️';
   document.getElementById('vtimer').classList.remove('on');
   if(recText.trim()){document.getElementById('vstatus').textContent='Done — review and save';document.getElementById('vstatus').className='vstatus';document.getElementById('vsavebar').classList.add('on');document.getElementById('i-note').value=recText.trim();}
-  else{document.getElementById('vstatus').textContent='No speech detected.';}
+  else{document.getElementById('vstatus').textContent='No speech detected. Try again.';}
 }
-function saveVoice(){const t=document.getElementById('ttext').textContent;if(!t)return;document.getElementById('i-note').value=t;clearVoice();document.getElementById('i-co').focus();toast('Transcript ready!','var(--gold)');}
+function saveVoice(){const t=document.getElementById('ttext').textContent;if(!t){toast('No transcript','var(--warm)');return;}document.getElementById('i-note').value=t;clearVoice();document.getElementById('i-co').focus();toast('Transcript ready!','var(--gold)');}
 function clearVoice(){recText='';document.getElementById('tbox').classList.remove('on');document.getElementById('ttext').textContent='';document.getElementById('vsavebar').classList.remove('on');document.getElementById('vstatus').textContent='Tap to start recording';document.getElementById('vstatus').className='vstatus';document.getElementById('vtimer').textContent='0:00';document.getElementById('vtimer').classList.remove('on');}
 
 let currentState='ALL';
 function pfTab(el,id){document.querySelectorAll('.pf-tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.pf-content').forEach(c=>c.classList.remove('on'));el.classList.add('on');document.getElementById('pf-'+id).classList.add('on');}
 function filterState(el,st){document.querySelectorAll('.sf-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');currentState=st;}
-function openSearch(type,query){const st=currentState==='ALL'?'NJ PA DE MD':currentState==='PA'?'Eastern Pennsylvania':currentState;if(type==='maps')window.open('https://www.google.com/maps/search/'+encodeURIComponent(query+' '+st),'_blank');else window.open('https://www.linkedin.com/search/results/companies/?keywords='+encodeURIComponent(query+' '+st),'_blank');}
+function openSearch(type,query){
+  const st=currentState==='ALL'?'NJ PA DE MD':currentState==='PA'?'Eastern Pennsylvania':currentState;
+  if(type==='maps')window.open('https://www.google.com/maps/search/'+encodeURIComponent(query+' '+st),'_blank');
+  else window.open('https://www.linkedin.com/search/results/companies/?keywords='+encodeURIComponent(query+' '+st),'_blank');
+}
 
-const MODULE_SUBJECTS={dw:'LTC/Lechler — Doors & Windows',sign:'LTC/Lechler — Advertising Signs',mach:'LTC/Lechler — Heavy Machinery',ive:'LTC/Lechler — Furniture & Architectural Design',ltc:'LTC/Lechler — Company Overview'};
+const MODULE_SUBJECTS={dw:'LTC / Lechler — Doors & Windows',sign:'LTC / Lechler — Advertising Signs',mach:'LTC / Lechler — Heavy Machinery',ive:'LTC / Lechler — Furniture & Architectural Design',ltc:'LTC / Lechler — Company Overview'};
 function getModuleText(id){const el=document.getElementById('prev-'+id);return el?el.textContent.trim():'';}
 function shareModule(type,id){const text=getModuleText(id);if(type==='text')window.open('sms:?body='+encodeURIComponent(text),'_blank');else window.open('mailto:?subject='+encodeURIComponent(MODULE_SUBJECTS[id])+'&body='+encodeURIComponent(text),'_blank');toast('Opening...','var(--blue2)');}
-function copyModule(id){navigator.clipboard.writeText(getModuleText(id)).then(()=>toast('Copied!','var(--ok)')).catch(()=>toast('Copy manually','var(--warm)'));}
+function copyModule(id){navigator.clipboard.writeText(getModuleText(id)).then(()=>toast('Copied!','var(--ok)')).catch(()=>toast('Select text and copy manually','var(--warm)'));}
 
 function saveNotes(){try{localStorage.setItem('ltc_road_notes',document.getElementById('road-notes').value);toast('Notes saved!','var(--gold)');}catch(e){}}
-function loadNotes(){try{const n=localStorage.getItem('ltc_road_notes');if(n&&document.getElementById('road-notes'))document.getElementById('road-notes').value=n;}catch(e){}}
+function loadNotes(){try{const n=localStorage.getItem('ltc_road_notes');if(n)document.getElementById('road-notes').value=n;}catch(e){}}
+
+const L=`<option>Doors & Windows</option><option>Heavy Machinery</option><option>Advertising Signs</option><option>IVE / Arch. Design</option>`;
+const ST=`<option value="">-- State --</option><option>NJ</option><option>Eastern PA</option><option>DE</option><option>MD</option><option>NY</option><option>OH</option><option>VA</option>`;
+const TODAY=new Date().toISOString().slice(0,10);
+
+const MODALS={
+  'new-customer':{title:'➕ Add Customer',body:`<div class="fgrid"><div class="fg full"><label>Company Name *</label><input type="text" id="c-name" placeholder="Company name"></div><div class="fg"><label>Industry</label><select id="c-industry"><option>Window / Door Mfg.</option><option>Sign Mfg.</option><option>Equipment / Machinery</option><option>Furniture / Cabinetry</option><option>Architecture / Design</option><option>Other</option></select></div><div class="fg"><label>Product Line</label><select id="c-line">${L}</select></div><div class="fg full"><label>Street Address</label><input type="text" id="c-street" placeholder="123 Main St"></div><div class="fg"><label>City</label><input type="text" id="c-city"></div><div class="fg"><label>State</label><select id="c-state">${ST}</select></div><div class="fg"><label>Zip</label><input type="text" id="c-zip"></div><div class="fg"><label>Status</label><select id="c-status"><option value="prospect">Prospect</option><option value="active">Active</option><option value="customer">Customer</option></select></div><div class="fg full"><label>Notes</label><textarea id="c-notes" placeholder="How did you hear about them?"></textarea></div></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-p" onclick="saveCustomer()">Save Customer</button><button class="btn btn-o" onclick="closeModal()">Cancel</button></div>`},
+  'new-contact':{title:'👤 Add Contact',body:`<div class="fgrid"><div class="fg"><label>First Name *</label><input type="text" id="ct-first"></div><div class="fg"><label>Last Name *</label><input type="text" id="ct-last"></div><div class="fg"><label>Title</label><input type="text" id="ct-title" placeholder="e.g. Plant Manager"></div><div class="fg"><label>Phone</label><input type="tel" id="ct-phone"></div><div class="fg"><label>Email</label><input type="email" id="ct-email"></div><div class="fg"><label>State</label><select id="ct-state">${ST}</select></div><div class="fg full"><label>Street Address</label><input type="text" id="ct-street" placeholder="123 Main St"></div><div class="fg"><label>City</label><input type="text" id="ct-city"></div><div class="fg"><label>Zip</label><input type="text" id="ct-zip"></div><div class="fg full"><label>Notes</label><textarea id="ct-notes" placeholder="What do they paint?"></textarea></div></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-p" onclick="saveContact()">Save Contact</button><button class="btn btn-o" onclick="closeModal()">Cancel</button></div>`},
+  'new-opportunity':{title:'💼 New Opportunity',body:`<div class="fgrid"><div class="fg"><label>Product Line</label><select id="op-line">${L}</select></div><div class="fg"><label>Stage</label><select id="op-stage"><option value="prospect">Prospect</option><option value="qualified">Qualified</option><option value="demo">Demo Done</option><option value="proposal">Proposal</option><option value="won">Won</option></select></div><div class="fg"><label>Value ($)</label><input type="number" id="op-value" placeholder="0"></div><div class="fg"><label>Close Date</label><input type="date" id="op-date"></div><div class="fg full"><label>Notes</label><textarea id="op-notes" placeholder="Details..."></textarea></div></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-p" onclick="saveOpportunity()">Save</button><button class="btn btn-o" onclick="closeModal()">Cancel</button></div>`},
+  'log-call':{title:'📞 Log a Call',body:`<div class="fgrid"><div class="fg"><label>Contact Name</label><input type="text" placeholder="Who did you call?"></div><div class="fg"><label>Date</label><input type="date" value="${TODAY}"></div><div class="fg"><label>Duration</label><select><option>5 min</option><option>15 min</option><option>30 min</option><option>1 hr</option></select></div><div class="fg"><label>Outcome</label><select><option>Left voicemail</option><option>Spoke — follow up needed</option><option>Demo scheduled</option><option>Not interested</option></select></div><div class="fg full"><label>Notes</label><textarea placeholder="What was discussed?"></textarea></div><div class="fg full"><label>Next Step</label><input type="text" placeholder="e.g. Send quote by Friday"></div></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-p" onclick="toast('Call logged!');closeModal()">Save</button><button class="btn btn-o" onclick="closeModal()">Cancel</button></div>`},
+  'script-signs-shop':{title:'📞 Script — Sign Shops',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ — I'm the local rep for LTC Products, the exclusive North American distributor for Lechler industrial paint. Lechler is the world leader in sign paint — 10,000 colors including full Pantone matching, and custom colors in 24 to 48 hours at no extra charge. Do you have a couple minutes?"<br><br><strong style="color:var(--gold)">Key Question:</strong><br>"Who are you currently buying your sign paint from, and what's your biggest frustration with it?"<br><br><strong style="color:var(--gold)">If they mention color speed or matching:</strong><br>"That's exactly what we solve. Can I bring one of our technical guys in to do a demo on your actual substrates? No obligation."</div>`},
+  'script-mach-oem':{title:'📞 Script — Equipment Manufacturers',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ — I represent LTC Products, the North American distributor for Lechler industrial paint. We work with equipment manufacturers on their painting lines — epoxy, zinc-rich, polyurethane systems. We send a technical expert to your facility to analyze your painting line and optimize your cycle. Free of charge. Is that worth 20 minutes?"<br><br><strong style="color:var(--gold)">Key Question:</strong><br>"What does your current painting process look like and what are your biggest pain points?"</div>`},
+  'script-mach-fab':{title:'📞 Script — Metal Fabricators',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ with LTC Products. We distribute Lechler industrial paint for metal and steel fabrication. Direct-to-substrate options — skip the primer on many applications — and low-VOC water-based systems that help with compliance. Are you painting your work in-house?"</div>`},
+  'script-ive-cabinet':{title:'📞 Script — Cabinet Manufacturers',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ with LTC Products. We distribute the Lechler IVE line — Italian-developed premium finishes for MDF and wood panels. Our LWE color system matches any designer specification just-in-time, in exactly the quantity you need. No leftover paint. No color mismatches. Are you doing your own finishing?"</div>`},
+  'script-dw-mfg':{title:'📞 Script — Window & Door Manufacturers',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ — I rep LTC Products, the North American distributor for Lechler industrial paint. Direct adhesion on aluminum and PVC with no primer step. ASTM 613, 614, 615 certified, water-based and isocyanate-free. Saves time and material on every run. Are you doing your own painting?"<br><br><strong style="color:var(--gold)">Key Question:</strong><br>"How are you handling color matching right now, and how consistent is it batch to batch?"</div>`},
+  'kb-pitch':{title:"🏢 TJ's 30-Second Pitch",body:`<div class="ibox" style="border-left:3px solid var(--accent)">"LTC is the exclusive North American distributor for Lechler — world leader in industrial paint for over 150 years. I cover NJ, PA, DE, and MD. We make your custom colors on-site, in exactly the quantity you need — any color in 24 to 72 hours. We direct-adhere to aluminum, PVC, vinyl, steel, MDF, glass, and more — no primer on most surfaces. We send technical experts to your shop to analyze your process and cut waste. ISO 9001 and 14000 certified, water-based, low VOC."</div><div class="ibox"><strong>Key Facts:</strong><br>• Territory: NJ, Eastern PA, DE, MD<br>• 150+ years · ISO 9001 &amp; ISO 14000<br>• Toll-free: 1 844 417-3030 · info@ltcp.ca</div>`},
+  'kb-sub-pitch':{title:'🔬 Substrate-Based Pitch',body:`<div style="display:flex;flex-direction:column;gap:8px"><div class="ibox"><strong>ALUMINUM?</strong> → D&amp;W or Signs. "Direct adhesion, no primer, ASTM certified."</div><div class="ibox"><strong>PVC?</strong> → D&amp;W. "Direct adhesion, water-based, isocyanate-free."</div><div class="ibox"><strong>VINYL?</strong> → Signs or D&amp;W. "10,000+ colors, Pantone match, UV stable."</div><div class="ibox"><strong>STEEL?</strong> → Machinery. "Epoxy, zinc-rich, or direct. Tech visits your plant."</div><div class="ibox"><strong>MDF / WOOD?</strong> → IVE. "LWE system, Italian-developed. Match any designer spec."</div><div class="ibox"><strong>GLASS?</strong> → IVE Vetrive. "Direct adhesion with metallic effects. Unique to Lechler."</div></div>`},
+  'kb-app-methods':{title:'🛠️ Application Methods by Substrate',body:`<div class="ibox" style="border-left:3px solid var(--accent)"><strong>🔩 ALUMINUM</strong><br>HVLP Spray · Electrostatic (cuts overspray 40%) · Airless/Airmix · Robot. ⚠️ Avoid roller on profiles.<br><span style="color:var(--gold)">Ask: "Manual spray or automated?"</span></div><div class="ibox" style="border-left:3px solid var(--accent)"><strong>🪟 PVC</strong><br>HVLP Spray · Airmix · Airless · Inverted Roll.<br><span style="color:var(--gold)">Ask: "Profiles or flat sheets?"</span></div><div class="ibox" style="border-left:3px solid var(--accent)"><strong>🎨 VINYL</strong><br>HVLP Spray · Airless · Inverted Roll.<br><span style="color:var(--gold)">Ask: "Indoor/outdoor? Rigid/flexible?"</span></div><div class="ibox" style="border-left:3px solid var(--accent)"><strong>⚙️ STEEL</strong><br>HVLP · Airless · Electrostatic · Immersion · Robot. Bare=epoxy. Corrosion=zinc-rich.<br><span style="color:var(--gold)">Ask: "Bare, prepped, or coated? Booth or open?"</span></div><div class="ibox" style="border-left:3px solid var(--accent)"><strong>🪵 MDF / WOOD</strong><br>HVLP · Curtain Coat · Roller · Vacuum · Airless · Robot.<br><span style="color:var(--gold)">Ask: "Flat panels or profiled? Line speed?"</span></div><div class="ibox" style="border-left:3px solid var(--accent)"><strong>🪞 GLASS</strong><br>HVLP ONLY. Always bring LTC technician.<br><span style="color:var(--gold)">Say: "Let me bring a tech to show you."</span></div>`},
+  'kb-5q':{title:'❓ 5 Questions to Ask Any New Customer',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q1: "What are you painting?"</strong> → Substrate → product line.</div><div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q2: "How are you applying it?"</strong> → Application method.</div><div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q3: "What's your biggest headache with your current paint?"</strong> → Pain point = your opening.</div><div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q4: "How much paint are you going through?"</strong> → $100K+ = 🔥 escalate immediately.</div><div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q5: "Who are you currently buying from?"</strong> → Switching likelihood.</div><div style="background:rgba(240,165,0,.07);border:1px solid rgba(240,165,0,.25);border-radius:8px;padding:11px;font-size:12px;color:var(--t2)">🎯 After 5 questions: substrate → line → method → pain → size → demo or warm lead. Log in Intel Hub immediately.</div>`},
+  'kb-objections':{title:'💬 Objections & Responses',body:`<div style="display:flex;flex-direction:column;gap:8px"><div class="ibox"><strong style="color:var(--err)">❓ "We have a supplier."</strong><br>✅ "Side-by-side demo at your shop, no cost. Let's let the paint speak."</div><div class="ibox"><strong style="color:var(--err)">❓ "Price is higher."</strong><br>✅ "No primer step + zero waste + free tech support = lower total cost."</div><div class="ibox"><strong style="color:var(--err)">❓ "Need to test first."</strong><br>✅ "That's exactly right. LTC technician at your facility, on your substrates."</div><div class="ibox"><strong style="color:var(--err)">❓ "Never heard of Lechler."</strong><br>✅ "150 years, world leader, ISO certified. Dominant in Europe. LTC brings it to you."</div></div>`},
+  'kb-colorimetry':{title:'🔬 Colorimetry System',body:`<div class="ibox"><strong>What it is:</strong> Any color on demand — manufactured on-site in exact quantity.<br><br>• Match any RAL, Pantone, or custom color<br>• Exact quantity — zero leftover paint<br>• Unique viscosity control<br>• Consistent batch-to-batch repeatability<br><br><strong style="color:var(--gold)">Pitch:</strong> "Do you ever have leftover paint or struggle to match a previous batch? We eliminate both."</div>`},
+  'kb-pricing':{title:'💰 Pricing & TCO',body:`<div class="ibox"><strong>Total Cost of Ownership:</strong><br><br>1. No primer step — saves material + labor<br>2. Zero color waste — exact quantities<br>3. Rework prevention — superior adhesion<br>4. Free technical support included<br>5. Environmental compliance — low VOC<br><br><strong style="color:var(--gold)">Ask:</strong> "If we cut your rework 15% and eliminated waste — what's that worth annually?"</div>`}
+};
+</script>
+<script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }
+</script>
+</body>
+</html>That's the problem — the file should be around 1,270 lines. Part 3 is missing entirely.
+
+Let's fix this cleanly in Terminal without TextEdit. Type this:
+
+cat >> ~/Desktop/ltc-dashboard/index.html << 'EOF'
+<script>
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+let currentUserRole = null;
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) { errEl.style.display = 'block'; return; }
+  currentUser = data.user;
+  await loadUserRole();
+  showApp();
+}
+
+async function loadUserRole() {
+  const { data } = await supabase.from('users').select('*').eq('email', currentUser.email).single();
+  if (data) {
+    currentUserRole = data.role;
+    document.getElementById('user-pill').textContent = '👤 ' + data.name;
+    const h = new Date().getHours();
+    const tod = h < 12 ? 'Morning' : h < 17 ? 'Afternoon' : 'Evening';
+    document.getElementById('dash-greeting').textContent = 'Good ' + tod + ', ' + data.name + '! 👋';
+    if (data.role === 'admin') {
+      document.getElementById('admin-section').style.display = 'block';
+      document.getElementById('sn-roadmap').style.display = 'flex';
+    }
+  }
+}
+
+async function doLogout() {
+  await supabase.auth.signOut();
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('bottom-nav').style.display = 'none';
+  currentUser = null; currentUserRole = null;
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+  document.getElementById('bottom-nav').style.display = 'block';
+  document.getElementById('today-sub').textContent = 'NJ · Eastern PA · DE · MD · ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  loadDashboardCounts();
+  loadCustomers();
+  loadContacts();
+  loadPipeline();
+  loadIntel();
+  loadNotes();
+}
+
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (session) { currentUser = session.user; loadUserRole().then(() => showApp()); }
+});
+
+const VIEWS=['dashboard','prospects','share','intel','customers','contacts','pipeline','knowledge','resources','roadmap'];
+function nav(id){
+  VIEWS.forEach(v=>{
+    const el=document.getElementById('view-'+v); if(el) el.classList.toggle('on',v===id);
+    const sn=document.getElementById('sn-'+v); if(sn) sn.classList.toggle('on',v===id);
+    const bn=document.getElementById('bn-'+v); if(bn) bn.classList.toggle('on',v===id);
+  });
+  window.scrollTo(0,0);
+}
+
+function toast(msg,color){
+  const t=document.getElementById('toast-el');
+  t.textContent=msg; t.style.background=color||'var(--ok)';
+  t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2600);
+}
+
+function showModal(key){ const m=MODALS[key]; if(!m) return; document.getElementById('mtit').textContent=m.title; document.getElementById('mbody').innerHTML=m.body; document.getElementById('moverlay').classList.add('on'); }
+function closeModal(){ document.getElementById('moverlay').classList.remove('on'); }
+
+async function loadDashboardCounts() {
+  const [c1,c2,c3,c4] = await Promise.all([
+    supabase.from('customers').select('*',{count:'exact',head:true}),
+    supabase.from('pipeline').select('*',{count:'exact',head:true}),
+    supabase.from('intel').select('*',{count:'exact',head:true}),
+    supabase.from('contacts').select('*',{count:'exact',head:true})
+  ]);
+  document.getElementById('dash-cust-cnt').textContent = c1.count||0;
+  document.getElementById('dash-pipe-cnt').textContent = c2.count||0;
+  document.getElementById('dash-intel-cnt').textContent = c3.count||0;
+  document.getElementById('dash-contact-cnt').textContent = c4.count||0;
+}
+
+let allCustomers=[];
+async function loadCustomers(){
+  const {data}=await supabase.from('customers').select('*').order('created_at',{ascending:false});
+  allCustomers=data||[]; renderCustomers(allCustomers);
+}
+function renderCustomers(customers){
+  const el=document.getElementById('customers-table');
+  if(!customers.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">🏭</div><div>No customers yet. Add your first one!</div></div>';return;}
+  el.innerHTML=`<table class="tbl"><thead><tr><th>Company</th><th>State</th><th>Product Line</th><th>Status</th><th></th></tr></thead><tbody>${customers.map(c=>`<tr><td><strong>${c.name}</strong></td><td>${c.state||'—'}</td><td>${c.product_line||'—'}</td><td><span class="badge b-${c.status==='customer'?'k':c.status==='active'?'g':'c'}">${c.status||'prospect'}</span></td><td><button class="btn btn-o btn-sm" onclick="viewCustomer('${c.id}')">View</button></td></tr>`).join('')}</tbody></table>`;
+}
+function filterCustomers(){
+  const q=document.getElementById('customer-search').value.toLowerCase();
+  renderCustomers(allCustomers.filter(c=>c.name.toLowerCase().includes(q)||(c.state||'').toLowerCase().includes(q)));
+}
+function viewCustomer(id){
+  const c=allCustomers.find(x=>x.id===id); if(!c) return;
+  document.getElementById('mtit').textContent=c.name;
+  document.getElementById('mbody').innerHTML=`<div class="ibox"><strong>State:</strong> ${c.state||'—'}<br><strong>Industry:</strong> ${c.industry||'—'}<br><strong>Product Line:</strong> ${c.product_line||'—'}<br><strong>Status:</strong> ${c.status||'—'}<br><strong>Address:</strong> ${[c.street,c.city,c.state,c.zip].filter(Boolean).join(', ')||'—'}<br><strong>Notes:</strong> ${c.notes||'—'}</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-h btn-sm" onclick="deleteCustomer('${c.id}')">🗑️ Delete</button><button class="btn btn-o btn-sm" onclick="closeModal()">Close</button></div>`;
+  document.getElementById('moverlay').classList.add('on');
+}
+async function deleteCustomer(id){
+  if(!confirm('Delete this customer?')) return;
+  await supabase.from('customers').delete().eq('id',id);
+  toast('Customer deleted'); closeModal(); loadCustomers(); loadDashboardCounts();
+}
+async function saveCustomer(){
+  const name=document.getElementById('c-name').value.trim();
+  if(!name){toast('Company name required','var(--err)');return;}
+  await supabase.from('customers').insert({name,industry:document.getElementById('c-industry').value,street:document.getElementById('c-street').value,city:document.getElementById('c-city').value,state:document.getElementById('c-state').value,zip:document.getElementById('c-zip').value,product_line:document.getElementById('c-line').value,status:document.getElementById('c-status').value,notes:document.getElementById('c-notes').value});
+  toast('Customer added! ✅'); closeModal(); loadCustomers(); loadDashboardCounts();
+}
+
+let allContacts=[];
+async function loadContacts(){
+  const {data}=await supabase.from('contacts').select('*').order('created_at',{ascending:false});
+  allContacts=data||[]; renderContacts(allContacts);
+}
+function renderContacts(contacts){
+  const el=document.getElementById('contacts-list');
+  if(!contacts.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">👤</div><div>No contacts yet.</div></div>';return;}
+  el.innerHTML=contacts.map(c=>`<div class="ccard"><div class="cav">${(c.first_name[0]||'')+(c.last_name[0]||'')}</div><div class="cinfo"><div class="cname">${c.first_name} ${c.last_name}</div><div class="crole">${c.title||''}</div><div class="cdet">${c.phone?'📞 '+c.phone:''} ${c.email?'· '+c.email:''}</div><div class="cdet">${[c.street,c.city,c.state,c.zip].filter(Boolean).join(', ')||''}</div></div><div class="cact">${c.phone?`<a href="tel:${c.phone}" class="btn btn-o btn-sm">📞</a>`:''}<button class="btn btn-o btn-sm" onclick="deleteContact('${c.id}')">🗑️</button></div></div>`).join('');
+}
+async function deleteContact(id){
+  if(!confirm('Delete this contact?')) return;
+  await supabase.from('contacts').delete().eq('id',id);
+  toast('Contact deleted'); loadContacts(); loadDashboardCounts();
+}
+async function saveContact(){
+  const first=document.getElementById('ct-first').value.trim();
+  const last=document.getElementById('ct-last').value.trim();
+  if(!first||!last){toast('Name required','var(--err)');return;}
+  await supabase.from('contacts').insert({first_name:first,last_name:last,title:document.getElementById('ct-title').value,phone:document.getElementById('ct-phone').value,email:document.getElementById('ct-email').value,street:document.getElementById('ct-street').value,city:document.getElementById('ct-city').value,state:document.getElementById('ct-state').value,zip:document.getElementById('ct-zip').value,notes:document.getElementById('ct-notes').value});
+  toast('Contact added! ✅'); closeModal(); loadContacts(); loadDashboardCounts();
+}
+
+let allPipeline=[];
+async function loadPipeline(){
+  const {data}=await supabase.from('pipeline').select('*').order('created_at',{ascending:false});
+  allPipeline=data||[]; renderPipeline(allPipeline);
+}
+function renderPipeline(opps){
+  ['prospect','qualified','demo','proposal','won'].forEach(s=>{const el=document.getElementById('pipe-'+s);if(el)el.textContent=opps.filter(o=>o.stage===s).length;});
+  const el=document.getElementById('pipeline-list');
+  if(!opps.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">💼</div><div>No opportunities yet.</div></div>';return;}
+  el.innerHTML=`<table class="tbl"><thead><tr><th>Product Line</th><th>Value</th><th>Stage</th><th></th></tr></thead><tbody>${opps.map(o=>`<tr><td>${o.product_line||'—'}</td><td>${o.value?'$'+Number(o.value).toLocaleString():'—'}</td><td><span class="badge b-c">${o.stage||'prospect'}</span></td><td><button class="btn btn-o btn-sm" onclick="deletePipeline('${o.id}')">🗑️</button></td></tr>`).join('')}</tbody></table>`;
+}
+async function deletePipeline(id){
+  if(!confirm('Delete this opportunity?')) return;
+  await supabase.from('pipeline').delete().eq('id',id);
+  toast('Deleted'); loadPipeline(); loadDashboardCounts();
+}
+async function saveOpportunity(){
+  await supabase.from('pipeline').insert({product_line:document.getElementById('op-line').value,value:document.getElementById('op-value').value||null,stage:document.getElementById('op-stage').value,notes:document.getElementById('op-notes').value});
+  toast('Opportunity added! ✅'); closeModal(); loadPipeline(); loadDashboardCounts();
+}
+
+let INTEL=[];
+async function loadIntel(){
+  const {data}=await supabase.from('intel').select('*').order('created_at',{ascending:false});
+  INTEL=data||[]; renderIntel();
+}
+function renderIntel(){
+  const hot=INTEL.filter(e=>e.priority==='hot').length;
+  document.getElementById('hotbadge').textContent=hot+' HOT';
+  document.getElementById('dash-intel-cnt').textContent=INTEL.length;
+  const feed=document.getElementById('intel-feed');
+  if(!INTEL.length){feed.innerHTML='<div class="empty-state"><div class="empty-state-icon">🕵️</div><div>No intel yet.</div></div>';renderHotTopics();return;}
+  feed.innerHTML=INTEL.map(e=>`<div class="icard ${e.priority||'warm'}"><div class="ich"><div><div class="ico">${e.company}</div><div class="icm"><span>${e.state||''}</span><span>·</span><span>${e.source||''}</span><span>·</span><span>${new Date(e.created_at).toLocaleDateString()}</span>${e.estimated_value?`<span>·</span><span style="color:var(--gold);font-weight:600">${e.estimated_value}</span>`:''}</div></div><div class="ipri ${e.priority||'warm'}">${e.priority==='hot'?'🔥 HOT':e.priority==='warm'?'⚡ WARM':'✅ COOL'}</div></div><div class="icb">${e.note||''}</div>${e.ai_suggestion?`<div style="background:rgba(255,77,77,.06);border:1px solid rgba(255,77,77,.2);border-radius:7px;padding:10px;margin-bottom:9px;"><div style="font-size:11px;text-transform:uppercase;color:var(--hot);margin-bottom:3px;font-weight:700;">🤖 AI Suggested Action</div><div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:3px;">${e.ai_suggestion.act||''}</div><div style="font-size:12px;color:var(--t2);">${e.ai_suggestion.why||''}</div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;">${(e.ai_suggestion.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`:''}<div class="ica"><button class="btn btn-o btn-sm" onclick="deleteIntel('${e.id}')">🗑️ Remove</button></div></div>`).join('');
+  renderHotTopics();
+}
+function renderHotTopics(){
+  const c=document.getElementById('hot-topics');
+  const entries=INTEL.filter(e=>e.ai_suggestion).slice(0,3);
+  if(!entries.length){c.innerHTML='<div style="font-size:13px;color:var(--dim);padding:10px;text-align:center">Add intel to get AI-powered suggestions.</div>';return;}
+  c.innerHTML=entries.map(e=>`<div class="aisugg"><div style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:3px">${e.priority==='hot'?'🔥 ':'⚡ '}${e.company}</div><div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:3px">${e.ai_suggestion.act||''}</div><div style="font-size:12px;color:var(--t2)">${e.ai_suggestion.why||''}</div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">${(e.ai_suggestion.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`).join('');
+  const dashHot=document.getElementById('dash-hot');
+  const hotItems=INTEL.filter(e=>e.priority==='hot'||e.priority==='warm').slice(0,2);
+  if(!hotItems.length){dashHot.innerHTML='<div style="font-size:12px;color:var(--dim)">No hot intel yet!</div>';return;}
+  dashHot.innerHTML=hotItems.map(e=>`<div style="padding:8px 0;border-bottom:1px solid rgba(255,77,77,.1);display:flex;align-items:flex-start;gap:10px;"><div style="font-size:15px">${e.priority==='hot'?'🔥':'⚡'}</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t1)">${e.company} ${e.estimated_value?`<span style="color:var(--gold);font-size:12px">${e.estimated_value}</span>`:''}</div>${e.ai_suggestion?`<div style="font-size:12px;color:var(--gold)">${e.ai_suggestion.act}</div>`:''}</div><button class="btn btn-h btn-sm" onclick="nav('intel')">View</button></div>`).join('');
+}
+async function addIntel(){
+  const co=document.getElementById('i-co').value.trim();
+  const note=document.getElementById('i-note').value.trim();
+  if(!co||!note){toast('Company and note required','var(--warm)');return;}
+  toast('🔥 Analyzing...','var(--hot)');
+  const entry={company:co,state:document.getElementById('i-st').value,source:document.getElementById('i-src').value,context:document.getElementById('i-ctx').value,note,estimated_value:document.getElementById('i-val').value.trim(),priority:'warm',ai_suggestion:null};
+  const aiResult=await analyzeIntel(entry);
+  entry.priority=aiResult.priority||'warm';
+  entry.ai_suggestion={act:aiResult.action||'Follow up with '+co,why:aiResult.reason||'Review intel for LTC fit.',tags:aiResult.tags||['Needs Review']};
+  await supabase.from('intel').insert(entry);
+  clearIntelForm();
+  toast('✅ Intel saved! Priority: '+entry.priority.toUpperCase(),'var(--hot)');
+  loadIntel(); loadDashboardCounts();
+}
+async function deleteIntel(id){
+  await supabase.from('intel').delete().eq('id',id);
+  toast('Intel removed'); loadIntel(); loadDashboardCounts();
+}
+async function clearAllIntel(){
+  if(!confirm('Clear all intel?')) return;
+  await supabase.from('intel').delete().neq('id','00000000-0000-0000-0000-000000000000');
+  toast('Cleared'); loadIntel(); loadDashboardCounts();
+}
+function clearIntelForm(){
+  ['i-co','i-note','i-val'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const s=document.getElementById('i-st');if(s)s.value='';
+}
+async function regenSugg(){toast('Re-analyzing...','var(--hot)');await loadIntel();toast('Updated!','var(--ok)');}
+async function analyzeIntel(entry){
+  const p=`You are a sales AI for TJ, rep for LTC Products. Intel: Company=${entry.company}, State=${entry.state}, Note=${entry.note}, Value=${entry.estimated_value||'unknown'}. Respond ONLY valid JSON: {"priority":"hot|warm|cool","action":"one specific action sentence","reason":"2-3 sentences why LTC solves their problem","tags":["tag1","tag2","tag3"]}`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:p}]})});
+    const d=await r.json();
+    const txt=(d.content||[]).map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();
+    return JSON.parse(txt);
+  }catch(e){return {priority:'warm',action:'Follow up with '+entry.company,reason:'AI unavailable.',tags:['Needs Review']};}
+}
+
+let REC=null,recOn=false,recTimer=null,recSecs=0,recText='';
+function toggleRec(){recOn?stopRec():startRec();}
+function startRec(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){document.getElementById('vstatus').textContent='Voice not supported — use the form below';return;}
+  REC=new SR();REC.continuous=true;REC.interimResults=true;REC.lang='en-US';
+  recText='';recOn=true;
+  document.getElementById('vbtn').classList.add('rec');document.getElementById('vbtn').textContent='⏹️';
+  document.getElementById('vstatus').textContent='Recording... speak now';document.getElementById('vstatus').className='vstatus rt';
+  document.getElementById('vtimer').classList.add('on');
+  recSecs=0;recTimer=setInterval(()=>{recSecs++;const m=Math.floor(recSecs/60),s=recSecs%60;document.getElementById('vtimer').textContent=m+':'+(s<10?'0':'')+s;},1000);
+  REC.onresult=ev=>{let fi='',in_='';for(let i=ev.resultIndex;i<ev.results.length;i++){if(ev.results[i].isFinal)fi+=ev.results[i][0].transcript+' ';else in_+=ev.results[i][0].transcript;}recText+=fi;document.getElementById('ttext').textContent=recText+in_;document.getElementById('tbox').classList.add('on');};
+  REC.onerror=()=>stopRec();REC.onend=()=>{if(recOn)REC.start();};REC.start();
+}
+function stopRec(){
+  if(REC){REC.stop();REC=null;}recOn=false;clearInterval(recTimer);
+  document.getElementById('vbtn').classList.remove('rec');document.getElementById('vbtn').textContent='🎙️';
+  document.getElementById('vtimer').classList.remove('on');
+  if(recText.trim()){document.getElementById('vstatus').textContent='Done — review and save';document.getElementById('vstatus').className='vstatus';document.getElementById('vsavebar').classList.add('on');document.getElementById('i-note').value=recText.trim();}
+  else{document.getElementById('vstatus').textContent='No speech detected. Try again.';}
+}
+function saveVoice(){const t=document.getElementById('ttext').textContent;if(!t){toast('No transcript','var(--warm)');return;}document.getElementById('i-note').value=t;clearVoice();document.getElementById('i-co').focus();toast('Transcript ready!','var(--gold)');}
+function clearVoice(){recText='';document.getElementById('tbox').classList.remove('on');document.getElementById('ttext').textContent='';document.getElementById('vsavebar').classList.remove('on');document.getElementById('vstatus').textContent='Tap to start recording';document.getElementById('vstatus').className='vstatus';document.getElementById('vtimer').textContent='0:00';document.getElementById('vtimer').classList.remove('on');}
+
+let currentState='ALL';
+function pfTab(el,id){document.querySelectorAll('.pf-tab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.pf-content').forEach(c=>c.classList.remove('on'));el.classList.add('on');document.getElementById('pf-'+id).classList.add('on');}
+function filterState(el,st){document.querySelectorAll('.sf-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');currentState=st;}
+function openSearch(type,query){
+  const st=currentState==='ALL'?'NJ PA DE MD':currentState==='PA'?'Eastern Pennsylvania':currentState;
+  if(type==='maps')window.open('https://www.google.com/maps/search/'+encodeURIComponent(query+' '+st),'_blank');
+  else window.open('https://www.linkedin.com/search/results/companies/?keywords='+encodeURIComponent(query+' '+st),'_blank');
+}
+
+const MODULE_SUBJECTS={dw:'LTC / Lechler — Doors & Windows',sign:'LTC / Lechler — Advertising Signs',mach:'LTC / Lechler — Heavy Machinery',ive:'LTC / Lechler — Furniture & Architectural Design',ltc:'LTC / Lechler — Company Overview'};
+function getModuleText(id){const el=document.getElementById('prev-'+id);return el?el.textContent.trim():'';}
+function shareModule(type,id){const text=getModuleText(id);if(type==='text')window.open('sms:?body='+encodeURIComponent(text),'_blank');else window.open('mailto:?subject='+encodeURIComponent(MODULE_SUBJECTS[id])+'&body='+encodeURIComponent(text),'_blank');toast('Opening...','var(--blue2)');}
+function copyModule(id){navigator.clipboard.writeText(getModuleText(id)).then(()=>toast('Copied!','var(--ok)')).catch(()=>toast('Select text and copy manually','var(--warm)'));}
+
+function saveNotes(){try{localStorage.setItem('ltc_road_notes',document.getElementById('road-notes').value);toast('Notes saved!','var(--gold)');}catch(e){}}
+function loadNotes(){try{const n=localStorage.getItem('ltc_road_notes');if(n)document.getElementById('road-notes').value=n;}catch(e){}}
 
 const L=`<option>Doors & Windows</option><option>Heavy Machinery</option><option>Advertising Signs</option><option>IVE / Arch. Design</option>`;
 const ST=`<option value="">-- State --</option><option>NJ</option><option>Eastern PA</option><option>DE</option><option>MD</option><option>NY</option><option>OH</option><option>VA</option>`;
@@ -1217,19 +1158,23 @@ const MODALS={
   'new-contact':{title:'👤 Add Contact',body:`<div class="fgrid"><div class="fg"><label>First Name *</label><input type="text" id="ct-first"></div><div class="fg"><label>Last Name *</label><input type="text" id="ct-last"></div><div class="fg"><label>Title</label><input type="text" id="ct-title" placeholder="e.g. Plant Manager"></div><div class="fg"><label>Phone</label><input type="tel" id="ct-phone"></div><div class="fg"><label>Email</label><input type="email" id="ct-email"></div><div class="fg"><label>State</label><select id="ct-state">${ST}</select></div><div class="fg full"><label>Street Address</label><input type="text" id="ct-street"></div><div class="fg"><label>City</label><input type="text" id="ct-city"></div><div class="fg"><label>Zip</label><input type="text" id="ct-zip"></div><div class="fg full"><label>Notes</label><textarea id="ct-notes"></textarea></div></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-p" onclick="saveContact()">Save Contact</button><button class="btn btn-o" onclick="closeModal()">Cancel</button></div>`},
   'new-opportunity':{title:'💼 New Opportunity',body:`<div class="fgrid"><div class="fg"><label>Product Line</label><select id="op-line">${L}</select></div><div class="fg"><label>Stage</label><select id="op-stage"><option value="prospect">Prospect</option><option value="qualified">Qualified</option><option value="demo">Demo Done</option><option value="proposal">Proposal</option><option value="won">Won</option></select></div><div class="fg"><label>Value ($)</label><input type="number" id="op-value" placeholder="0"></div><div class="fg"><label>Close Date</label><input type="date" id="op-date"></div><div class="fg full"><label>Notes</label><textarea id="op-notes"></textarea></div></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-p" onclick="saveOpportunity()">Save</button><button class="btn btn-o" onclick="closeModal()">Cancel</button></div>`},
   'log-call':{title:'📞 Log a Call',body:`<div class="fgrid"><div class="fg"><label>Contact Name</label><input type="text" placeholder="Who did you call?"></div><div class="fg"><label>Date</label><input type="date" value="${TODAY}"></div><div class="fg"><label>Duration</label><select><option>5 min</option><option>15 min</option><option>30 min</option><option>1 hr</option></select></div><div class="fg"><label>Outcome</label><select><option>Left voicemail</option><option>Spoke — follow up needed</option><option>Demo scheduled</option><option>Not interested</option></select></div><div class="fg full"><label>Notes</label><textarea placeholder="What was discussed?"></textarea></div></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-p" onclick="toast('Call logged!');closeModal()">Save</button><button class="btn btn-o" onclick="closeModal()">Cancel</button></div>`},
-  'script-signs-shop':{title:'📞 Script — Sign Shops',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ — I'm the local rep for LTC Products. Lechler industrial paint — world leader in sign paint. 10,000 colors, full Pantone matching, custom colors in 24 to 48 hours. Do you have a couple minutes?"<br><br><strong style="color:var(--gold)">Key Question:</strong><br>"Who are you buying your sign paint from, and what's your biggest frustration with it?"</div>`},
-  'script-mach-oem':{title:'📞 Script — Equipment Manufacturers',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ — I represent LTC Products, distributor for Lechler industrial paint. We send a technical expert to your facility to analyze your painting line and optimize your cycle. Free of charge. Is that worth 20 minutes?"</div>`},
-  'script-mach-fab':{title:'📞 Script — Metal Fabricators',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ with LTC Products. Lechler industrial paint for metal and steel. Direct-to-substrate — skip the primer on many applications. Low-VOC water-based systems. Are you painting your work in-house?"</div>`},
-  'script-ive-cabinet':{title:'📞 Script — Cabinet Manufacturers',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ with LTC Products. Our LWE color system matches any designer specification just-in-time, exact quantity you need. No leftover paint. No color mismatches. Are you doing your own finishing?"</div>`},
-  'script-dw-mfg':{title:'📞 Script — Window & Door Manufacturers',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ — I rep LTC Products. Lechler paint — direct adhesion on aluminum and PVC, no primer step. ASTM certified, water-based. Saves time and material on every run. Are you doing your own painting?"</div>`},
+  'script-signs-shop':{title:'📞 Script — Sign Shops',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ — I'm the local rep for LTC Products, the exclusive North American distributor for Lechler industrial paint. 10,000 colors including full Pantone matching, custom colors in 24 to 48 hours. Do you have a couple minutes?"<br><br><strong style="color:var(--gold)">Key Question:</strong><br>"Who are you currently buying your sign paint from, and what's your biggest frustration with it?"</div>`},
+  'script-mach-oem':{title:'📞 Script — Equipment Manufacturers',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ — I represent LTC Products, the North American distributor for Lechler industrial paint. We send a technical expert to your facility to analyze your painting line and optimize your cycle. Free of charge. Is that worth 20 minutes?"</div>`},
+  'script-mach-fab':{title:'📞 Script — Metal Fabricators',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ with LTC Products. Direct-to-substrate options — skip the primer on many applications — and low-VOC water-based systems. Are you painting your work in-house?"</div>`},
+  'script-ive-cabinet':{title:'📞 Script — Cabinet Manufacturers',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ with LTC Products. Our LWE color system matches any designer specification just-in-time, in exactly the quantity you need. No leftover paint. No color mismatches. Are you doing your own finishing?"</div>`},
+  'script-dw-mfg':{title:'📞 Script — Window & Door Manufacturers',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Opening:</strong><br>"Hi, this is TJ — I rep LTC Products. Direct adhesion on aluminum and PVC with no primer step. ASTM certified, water-based. Saves time and material on every run. Are you doing your own painting?"</div>`},
   'kb-pitch':{title:"🏢 TJ's 30-Second Pitch",body:`<div class="ibox" style="border-left:3px solid var(--accent)">"LTC is the exclusive North American distributor for Lechler — world leader in industrial paint for over 150 years. I cover NJ, PA, DE, and MD. Any color in 24 to 72 hours. Direct adhesion on aluminum, PVC, vinyl, steel, MDF, glass — no primer on most surfaces. Free technical experts visit your shop. ISO 9001 and 14000 certified, water-based, low VOC."</div><div class="ibox"><strong>Key Facts:</strong><br>• Territory: NJ, Eastern PA, DE, MD<br>• 150+ years · ISO 9001 &amp; ISO 14000<br>• Toll-free: 1 844 417-3030</div>`},
-  'kb-sub-pitch':{title:'🔬 Substrate-Based Pitch',body:`<div style="display:flex;flex-direction:column;gap:8px"><div class="ibox"><strong>ALUMINUM?</strong> → D&amp;W or Signs. "Direct adhesion, no primer, ASTM certified."</div><div class="ibox"><strong>PVC?</strong> → D&amp;W. "Direct adhesion, water-based, isocyanate-free."</div><div class="ibox"><strong>VINYL?</strong> → Signs. "10,000+ colors, Pantone match, UV stable."</div><div class="ibox"><strong>STEEL?</strong> → Machinery. "Epoxy, zinc-rich, or direct. Tech visits your plant."</div><div class="ibox"><strong>MDF / WOOD?</strong> → IVE. "LWE system. Match any designer spec."</div><div class="ibox"><strong>GLASS?</strong> → IVE Vetrive. "Direct adhesion. Unique to Lechler."</div></div>`},
+  'kb-sub-pitch':{title:'🔬 Substrate-Based Pitch',body:`<div style="display:flex;flex-direction:column;gap:8px"><div class="ibox"><strong>ALUMINUM?</strong> → D&amp;W or Signs. "Direct adhesion, no primer, ASTM certified."</div><div class="ibox"><strong>PVC?</strong> → D&amp;W. "Direct adhesion, water-based, isocyanate-free."</div><div class="ibox"><strong>VINYL?</strong> → Signs. "10,000+ colors, Pantone match, UV stable."</div><div class="ibox"><strong>STEEL?</strong> → Machinery. "Epoxy, zinc-rich, or direct. Tech visits your plant."</div><div class="ibox"><strong>MDF / WOOD?</strong> → IVE. "LWE system, Italian-developed. Match any designer spec."</div><div class="ibox"><strong>GLASS?</strong> → IVE Vetrive. "Direct adhesion. Unique to Lechler."</div></div>`},
   'kb-app-methods':{title:'🛠️ Application Methods',body:`<div class="ibox" style="border-left:3px solid var(--accent)"><strong>ALUMINUM</strong> — HVLP · Electrostatic · Airless. Ask: "Manual or automated?"</div><div class="ibox" style="border-left:3px solid var(--accent)"><strong>PVC</strong> — HVLP · Airmix · Airless. Ask: "Profiles or flat sheets?"</div><div class="ibox" style="border-left:3px solid var(--accent)"><strong>STEEL</strong> — HVLP · Airless · Electrostatic · Immersion. Ask: "Booth or open shop?"</div><div class="ibox" style="border-left:3px solid var(--accent)"><strong>MDF / WOOD</strong> — HVLP · Curtain Coat · Roller · Vacuum. Ask: "Flat or profiled?"</div><div class="ibox" style="border-left:3px solid var(--accent)"><strong>GLASS</strong> — HVLP ONLY. Always bring LTC technician.</div>`},
   'kb-5q':{title:'❓ 5 Questions to Ask',body:`<div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q1:</strong> "What are you painting?" → Substrate → product line.</div><div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q2:</strong> "How are you applying it?" → Application method.</div><div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q3:</strong> "What's your biggest headache with your current paint?" → Pain point.</div><div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q4:</strong> "How much paint are you going through?" → $100K+ = escalate immediately.</div><div class="ibox" style="border-left:3px solid var(--gold)"><strong style="color:var(--gold)">Q5:</strong> "Who are you currently buying from?" → Switching likelihood.</div>`},
   'kb-objections':{title:'💬 Objections & Responses',body:`<div style="display:flex;flex-direction:column;gap:8px"><div class="ibox"><strong style="color:var(--err)">"We have a supplier."</strong><br>✅ "Side-by-side demo at your shop, no cost."</div><div class="ibox"><strong style="color:var(--err)">"Price is higher."</strong><br>✅ "No primer + zero waste + free tech support = lower total cost."</div><div class="ibox"><strong style="color:var(--err)">"Need to test first."</strong><br>✅ "LTC technician at your facility, on your substrates."</div><div class="ibox"><strong style="color:var(--err)">"Never heard of Lechler."</strong><br>✅ "150 years, world leader, ISO certified. Dominant in Europe."</div></div>`},
-  'kb-colorimetry':{title:'🔬 Colorimetry System',body:`<div class="ibox">Any color on demand — exact quantity, zero leftover paint. Match any RAL, Pantone, or custom color. Unique viscosity control. Batch-to-batch repeatability.<br><br><strong style="color:var(--gold)">Pitch:</strong> "Do you ever have leftover paint or trouble matching a previous batch? We eliminate both."</div>`},
+  'kb-colorimetry':{title:'🔬 Colorimetry System',body:`<div class="ibox">Any color on demand — exact quantity, zero leftover paint. Match any RAL, Pantone, or custom color. Unique viscosity control. Consistent batch-to-batch repeatability.<br><br><strong style="color:var(--gold)">Pitch:</strong> "Do you ever have leftover paint or struggle to match a previous batch? We eliminate both."</div>`},
   'kb-pricing':{title:'💰 Pricing & TCO',body:`<div class="ibox"><strong>Total Cost of Ownership:</strong><br><br>1. No primer step — saves material + labor<br>2. Zero color waste — exact quantities<br>3. Rework prevention — superior adhesion<br>4. Free technical support<br>5. Environmental compliance — low VOC<br><br><strong style="color:var(--gold)">Ask:</strong> "If we cut your rework 15% and eliminated waste — what's that worth annually?"</div>`}
 };
 </script>
 </body>
 </html>
+EOF
+Tell me when it's done and what the prompt looks like. 👍
+
+
