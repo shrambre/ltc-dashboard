@@ -372,6 +372,7 @@ select option{background:var(--panel);}
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--t1);margin-bottom:3px;">📍 Quick Intel Capture</div>
         <div style="font-size:12px;color:var(--t2);margin-bottom:14px;">At a dinner? Heard something useful? Tap to record or type below.</div>
         <button class="vbtn" id="vbtn" onclick="toggleRec()">🎙️</button>
+        <button class="btn btn-h" id="vstopbtn" onclick="stopRec()" style="display:none;margin-top:10px;width:100%;font-size:16px;padding:14px;border-radius:12px">⏹️ Stop Recording & Save</button>
         <div class="vstatus" id="vstatus">Tap to start recording</div>
         <div class="vtimer" id="vtimer">0:00</div>
         <div class="tbox" id="tbox"><div class="tlabel">Transcribed Note</div><div id="ttext"></div></div>
@@ -687,13 +688,42 @@ function filterCustomers(){
 function viewCustomer(id){
   const c=allCustomers.find(x=>x.id===id); if(!c) return;
   document.getElementById('mtit').textContent=c.name;
-  document.getElementById('mbody').innerHTML=`<div class="ibox"><strong>State:</strong> ${c.state||'—'}<br><strong>Industry:</strong> ${c.industry||'—'}<br><strong>Product Line:</strong> ${c.product_line||'—'}<br><strong>Status:</strong> ${c.status||'—'}<br><strong>Address:</strong> ${[c.street,c.city,c.state,c.zip].filter(Boolean).join(', ')||'—'}<br><strong>Notes:</strong> ${c.notes||'—'}</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-h btn-sm" onclick="deleteCustomer('${c.id}')">🗑️ Delete</button><button class="btn btn-o btn-sm" onclick="closeModal()">Close</button></div>`;
+  document.getElementById('mbody').innerHTML=`<div class="ibox"><strong>State:</strong> ${c.state||'—'}<br><strong>Industry:</strong> ${c.industry||'—'}<br><strong>Product Line:</strong> ${c.product_line||'—'}<br><strong>Status:</strong> ${c.status||'—'}<br><strong>Address:</strong> ${[c.street,c.city,c.state,c.zip].filter(Boolean).join(', ')||'—'}<br><strong>Notes:</strong> ${c.notes||'—'}</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-p btn-sm" onclick="editCustomer('${c.id}')">✏️ Edit</button><button class="btn btn-h btn-sm" onclick="deleteCustomer('${c.id}')">🗑️ Delete</button><button class="btn btn-o btn-sm" onclick="closeModal()">Close</button></div>`;
   document.getElementById('moverlay').classList.add('on');
 }
 async function deleteCustomer(id){
   if(!confirm('Delete this customer?')) return;
   await db.from('customers').delete().eq('id',id);
   toast('Customer deleted'); closeModal(); loadCustomers(); loadDashboardCounts();
+}
+function editCustomer(id){
+  const c=allCustomers.find(x=>x.id===id); if(!c) return;
+  closeModal();
+  const L=document.querySelector('#c-line')?.innerHTML||'';
+  const ST=document.querySelector('#c-state')?.innerHTML||'';
+  showModal('new-customer');
+  setTimeout(()=>{
+    document.getElementById('mtit').textContent='✏️ Edit Customer';
+    document.getElementById('c-name').value=c.name||'';
+    document.getElementById('c-industry').value=c.industry||'';
+    document.getElementById('c-street').value=c.street||'';
+    document.getElementById('c-city').value=c.city||'';
+    document.getElementById('c-state').value=c.state||'';
+    document.getElementById('c-zip').value=c.zip||'';
+    document.getElementById('c-line').value=c.product_line||'';
+    document.getElementById('c-status').value=c.status||'prospect';
+    document.getElementById('c-notes').value=c.notes||'';
+    // swap save button to update
+    const btn=document.querySelector('#mbody .btn-p');
+    btn.textContent='Update Customer';
+    btn.onclick=()=>updateCustomer(id);
+  },50);
+}
+async function updateCustomer(id){
+  const name=document.getElementById('c-name').value.trim();
+  if(!name){toast('Company name required','var(--err)');return;}
+  await db.from('customers').update({name,industry:document.getElementById('c-industry').value,street:document.getElementById('c-street').value,city:document.getElementById('c-city').value,state:document.getElementById('c-state').value,zip:document.getElementById('c-zip').value,product_line:document.getElementById('c-line').value,status:document.getElementById('c-status').value,notes:document.getElementById('c-notes').value}).eq('id',id);
+  toast('Customer updated! ✅'); closeModal(); loadCustomers(); loadDashboardCounts();
 }
 async function saveCustomer(){
   const name=document.getElementById('c-name').value.trim();
@@ -710,12 +740,39 @@ async function loadContacts(){
 function renderContacts(contacts){
   const el=document.getElementById('contacts-list');
   if(!contacts.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">👤</div><div>No contacts yet.</div></div>';return;}
-  el.innerHTML=contacts.map(c=>`<div class="ccard"><div class="cav">${(c.first_name[0]||'')+(c.last_name[0]||'')}</div><div class="cinfo"><div class="cname">${c.first_name} ${c.last_name}</div><div class="crole">${c.title||''}</div><div class="cdet">${c.phone?'📞 '+c.phone:''} ${c.email?'· '+c.email:''}</div><div class="cdet">${[c.street,c.city,c.state,c.zip].filter(Boolean).join(', ')||''}</div></div><div class="cact">${c.phone?`<a href="tel:${c.phone}" class="btn btn-o btn-sm">📞</a>`:''}<button class="btn btn-o btn-sm" onclick="deleteContact('${c.id}')">🗑️</button></div></div>`).join('');
+  el.innerHTML=contacts.map(c=>`<div class="ccard"><div class="cav">${(c.first_name[0]||'')+(c.last_name[0]||'')}</div><div class="cinfo"><div class="cname">${c.first_name} ${c.last_name}</div><div class="crole">${c.title||''}</div><div class="cdet">${c.phone?'📞 '+c.phone:''} ${c.email?'· '+c.email:''}</div><div class="cdet">${[c.street,c.city,c.state,c.zip].filter(Boolean).join(', ')||''}</div></div><div class="cact">${c.phone?`<a href="tel:${c.phone}" class="btn btn-o btn-sm">📞</a>`:''}<button class="btn btn-p btn-sm" onclick="editContact('${c.id}')">✏️</button><button class="btn btn-o btn-sm" onclick="deleteContact('${c.id}')">🗑️</button></div></div>`).join('');
 }
 async function deleteContact(id){
   if(!confirm('Delete this contact?')) return;
   await db.from('contacts').delete().eq('id',id);
   toast('Contact deleted'); loadContacts(); loadDashboardCounts();
+}
+function editContact(id){
+  const c=allContacts.find(x=>x.id===id); if(!c) return;
+  showModal('new-contact');
+  setTimeout(()=>{
+    document.getElementById('mtit').textContent='✏️ Edit Contact';
+    document.getElementById('ct-first').value=c.first_name||'';
+    document.getElementById('ct-last').value=c.last_name||'';
+    document.getElementById('ct-title').value=c.title||'';
+    document.getElementById('ct-phone').value=c.phone||'';
+    document.getElementById('ct-email').value=c.email||'';
+    document.getElementById('ct-street').value=c.street||'';
+    document.getElementById('ct-city').value=c.city||'';
+    document.getElementById('ct-state').value=c.state||'';
+    document.getElementById('ct-zip').value=c.zip||'';
+    document.getElementById('ct-notes').value=c.notes||'';
+    const btn=document.querySelector('#mbody .btn-p');
+    btn.textContent='Update Contact';
+    btn.onclick=()=>updateContact(id);
+  },50);
+}
+async function updateContact(id){
+  const first=document.getElementById('ct-first').value.trim();
+  const last=document.getElementById('ct-last').value.trim();
+  if(!first||!last){toast('Name required','var(--err)');return;}
+  await db.from('contacts').update({first_name:first,last_name:last,title:document.getElementById('ct-title').value,phone:document.getElementById('ct-phone').value,email:document.getElementById('ct-email').value,street:document.getElementById('ct-street').value,city:document.getElementById('ct-city').value,state:document.getElementById('ct-state').value,zip:document.getElementById('ct-zip').value,notes:document.getElementById('ct-notes').value}).eq('id',id);
+  toast('Contact updated! ✅'); closeModal(); loadContacts(); loadDashboardCounts();
 }
 async function saveContact(){
   const first=document.getElementById('ct-first').value.trim();
@@ -734,12 +791,31 @@ function renderPipeline(opps){
   ['prospect','qualified','demo','proposal','won'].forEach(s=>{const el=document.getElementById('pipe-'+s);if(el)el.textContent=opps.filter(o=>o.stage===s).length;});
   const el=document.getElementById('pipeline-list');
   if(!opps.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">💼</div><div>No opportunities yet.</div></div>';return;}
-  el.innerHTML=`<table class="tbl"><thead><tr><th>Product Line</th><th>Value</th><th>Stage</th><th></th></tr></thead><tbody>${opps.map(o=>`<tr><td>${o.product_line||'—'}</td><td>${o.value?'$'+Number(o.value).toLocaleString():'—'}</td><td><span class="badge b-c">${o.stage||'prospect'}</span></td><td><button class="btn btn-o btn-sm" onclick="deletePipeline('${o.id}')">🗑️</button></td></tr>`).join('')}</tbody></table>`;
+  el.innerHTML=`<table class="tbl"><thead><tr><th>Product Line</th><th>Value</th><th>Stage</th><th></th></tr></thead><tbody>${opps.map(o=>`<tr><td>${o.product_line||'—'}</td><td>${o.value?'$'+Number(o.value).toLocaleString():'—'}</td><td><span class="badge b-c">${o.stage||'prospect'}</span></td><td style="display:flex;gap:4px"><button class="btn btn-p btn-sm" onclick="editOpportunity('${o.id}')">✏️</button><button class="btn btn-o btn-sm" onclick="deletePipeline('${o.id}')">🗑️</button></td></tr>`).join('')}</tbody></table>`;
 }
 async function deletePipeline(id){
   if(!confirm('Delete this opportunity?')) return;
   await db.from('pipeline').delete().eq('id',id);
   toast('Deleted'); loadPipeline(); loadDashboardCounts();
+}
+function editOpportunity(id){
+  const o=allPipeline.find(x=>x.id===id); if(!o) return;
+  showModal('new-opportunity');
+  setTimeout(()=>{
+    document.getElementById('mtit').textContent='✏️ Edit Opportunity';
+    document.getElementById('op-line').value=o.product_line||'';
+    document.getElementById('op-stage').value=o.stage||'prospect';
+    document.getElementById('op-value').value=o.value||'';
+    document.getElementById('op-date').value=o.close_date||'';
+    document.getElementById('op-notes').value=o.notes||'';
+    const btn=document.querySelector('#mbody .btn-p');
+    btn.textContent='Update Opportunity';
+    btn.onclick=()=>updateOpportunity(id);
+  },50);
+}
+async function updateOpportunity(id){
+  await db.from('pipeline').update({product_line:document.getElementById('op-line').value,value:document.getElementById('op-value').value||null,stage:document.getElementById('op-stage').value,close_date:document.getElementById('op-date').value||null,notes:document.getElementById('op-notes').value}).eq('id',id);
+  toast('Opportunity updated! ✅'); closeModal(); loadPipeline(); loadDashboardCounts();
 }
 async function saveOpportunity(){
   await db.from('pipeline').insert({product_line:document.getElementById('op-line').value,value:document.getElementById('op-value').value||null,stage:document.getElementById('op-stage').value,notes:document.getElementById('op-notes').value});
@@ -818,6 +894,7 @@ function startRec(){
   document.getElementById('vbtn').classList.add('rec');document.getElementById('vbtn').textContent='⏹️';
   document.getElementById('vstatus').textContent='Recording... speak now';document.getElementById('vstatus').className='vstatus rt';
   document.getElementById('vtimer').classList.add('on');
+  const sb=document.getElementById('vstopbtn');if(sb)sb.style.display='block';
   recSecs=0;recTimer=setInterval(()=>{recSecs++;const m=Math.floor(recSecs/60),s=recSecs%60;document.getElementById('vtimer').textContent=m+':'+(s<10?'0':'')+s;},1000);
   REC.onresult=ev=>{let fi='',in_='';for(let i=ev.resultIndex;i<ev.results.length;i++){if(ev.results[i].isFinal)fi+=ev.results[i][0].transcript+' ';else in_+=ev.results[i][0].transcript;}recText+=fi;document.getElementById('ttext').textContent=recText+in_;document.getElementById('tbox').classList.add('on');};
   REC.onerror=()=>stopRec();REC.onend=()=>{if(recOn)REC.start();};REC.start();
@@ -826,6 +903,7 @@ function stopRec(){
   if(REC){REC.stop();REC=null;}recOn=false;clearInterval(recTimer);
   document.getElementById('vbtn').classList.remove('rec');document.getElementById('vbtn').textContent='🎙️';
   document.getElementById('vtimer').classList.remove('on');
+  const sb=document.getElementById('vstopbtn');if(sb)sb.style.display='none';
   if(recText.trim()){document.getElementById('vstatus').textContent='Done — review and save';document.getElementById('vstatus').className='vstatus';document.getElementById('vsavebar').classList.add('on');document.getElementById('i-note').value=recText.trim();}
   else{document.getElementById('vstatus').textContent='No speech detected. Try again.';}
 }
